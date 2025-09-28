@@ -1,5 +1,9 @@
 # Trash Scanner Mobile
 
+![CI](https://img.shields.io/github/actions/workflow/status/trashscanner/trashscanner_mobile/ci.yml?label=CI&logo=github)
+![Coverage](https://raw.githubusercontent.com/trashscanner/trashscanner_mobile/badges/coverage.svg)
+![Quality](https://raw.githubusercontent.com/trashscanner/trashscanner_mobile/badges/quality.svg)
+
 Мобильное приложение на Flutter для экологичных активистов. «Trash Scanner» помогает определять тип отходов по фотографии, выдаёт рекомендации по утилизации, показывает статистику переработки и подсказывает ближайшие пункты приёма вторсырья.
 
 ## Что умеет приложение

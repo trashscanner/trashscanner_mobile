@@ -5,15 +5,23 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 
-import 'package:trashscanner_mobile/main.dart';
+import 'package:trashscanner_mobile/screens/auth_screen.dart';
 
 void main() {
   testWidgets('Показывается экран авторизации', (tester) async {
-    await tester.pumpWidget(const TrashScannerApp());
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AuthScreen(onAuthenticated: () {}),
+        ),
+      );
 
-    expect(find.text('Анализатор мусора'), findsOneWidget);
-    expect(find.text('Войти'), findsOneWidget);
+      expect(find.text('Анализатор мусора'), findsOneWidget);
+      expect(find.text('Войти'), findsOneWidget);
+    });
   });
 }

@@ -233,7 +233,7 @@ jobs:
           path: artifacts/coverage
 
       - name: Generate coverage badge
-        uses: cicirello/coverage-badges-action@v4
+        uses: cicirello/coverage-badges-action@v2
         with:
           lcov-file: artifacts/coverage/lcov.info
           output: badges

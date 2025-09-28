@@ -1,6 +1,9 @@
 name: Flutter CI
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - '**'
@@ -212,3 +215,42 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: pr-preview
+
+  badges:
+    name: Publish badges
+    needs:
+      - tests
+      - quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: artifacts/coverage
+
+      - name: Generate coverage badge
+        uses: cicirello/coverage-badges-action@v4
+        with:
+          lcov-file: artifacts/coverage/lcov.info
+          output: badges
+          coverage-badge-filename: coverage.svg
+
+      - name: Generate quality badge
+        uses: emibcn/badge-action@v2
+        with:
+          label: quality
+          status: passing
+          color: 4CAF50
+          path: badges/quality.svg
+
+      - name: Publish badges branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: badges
+          publish_dir: badges
+          keep_files: true

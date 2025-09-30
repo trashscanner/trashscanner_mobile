@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Expo / Metro caches
+.expo/
+.expo-shared/
+.expo-dev/
+.expo/android/
+.expo/ios/
+.web-cache/
+.web-build/
+.expo-cache/
+
+# Build outputs
+/dist/
+/build/
+/web-build/
+**/build/
+**/dist/
+
+# Native projects generated via `npx expo prebuild`
+/android/
+/ios/
+
+# IDE & editor junk
+.vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Environment & local configs
+.env
+.env.*
+!.env.example
+
+# Coverage & reports
+coverage/
+*.lcov
+
+# Misc
+*.log
+*.tmp
+expo-env.d.ts

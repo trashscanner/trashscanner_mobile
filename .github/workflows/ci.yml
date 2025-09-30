@@ -32,6 +32,8 @@ jobs:
   test:
     name: 🧪 Test & Coverage
     runs-on: ubuntu-latest
+    environment:
+      name: CI
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -58,7 +60,7 @@ jobs:
         if: always()
 
       - name: 📊 Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info

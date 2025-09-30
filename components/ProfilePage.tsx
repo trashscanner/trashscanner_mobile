@@ -1,4 +1,12 @@
-import { User, Settings, Bell, Globe, Moon, LogOut, ChevronRight } from "lucide-react";
+import {
+  User,
+  Settings,
+  Bell,
+  Globe,
+  Moon,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Card } from "./ui/card";
 import { Switch } from "./ui/switch";
@@ -12,7 +20,8 @@ export function ProfilePage({ setCurrentPage }: ProfilePageProps) {
   const user = {
     name: "Анна Петрова",
     email: "anna.petrova@email.com",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616c13488ac?w=150&h=150&fit=crop&crop=face"
+    avatar:
+      "https://images.unsplash.com/photo-1494790108755-2616c13488ac?w=150&h=150&fit=crop&crop=face",
   };
 
   const settingsItems = [
@@ -21,21 +30,21 @@ export function ProfilePage({ setCurrentPage }: ProfilePageProps) {
       title: "Уведомления",
       subtitle: "Push-уведомления и напоминания",
       hasSwitch: true,
-      value: true
+      value: true,
     },
     {
       icon: Globe,
       title: "Язык",
       subtitle: "Русский",
-      hasSwitch: false
+      hasSwitch: false,
     },
     {
       icon: Moon,
       title: "Тёмная тема",
       subtitle: "Автоматически",
       hasSwitch: true,
-      value: false
-    }
+      value: false,
+    },
   ];
 
   return (
@@ -56,7 +65,10 @@ export function ProfilePage({ setCurrentPage }: ProfilePageProps) {
             <Avatar className="w-16 h-16">
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback className="bg-[#4CAF50]/10 text-[#4CAF50]">
-                {user.name.split(' ').map(n => n[0]).join('')}
+                {user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -96,7 +108,10 @@ export function ProfilePage({ setCurrentPage }: ProfilePageProps) {
             {settingsItems.map((item, index) => {
               const Icon = item.icon;
               return (
-                <div key={index} className="flex items-center justify-between p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-[#4CAF50]/10 rounded-lg flex items-center justify-center">
                       <Icon className="w-4 h-4 text-[#4CAF50]" />
@@ -121,8 +136,11 @@ export function ProfilePage({ setCurrentPage }: ProfilePageProps) {
         <Card className="p-4 mb-6">
           <h3 className="font-medium mb-4">Достижения</h3>
           <div className="flex gap-3 overflow-x-auto">
-            {['🌱', '♻️', '🏆', '⭐', '🌍'].map((emoji, index) => (
-              <div key={index} className="flex-shrink-0 w-12 h-12 bg-[#4CAF50]/10 rounded-lg flex items-center justify-center">
+            {["🌱", "♻️", "🏆", "⭐", "🌍"].map((emoji, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 w-12 h-12 bg-[#4CAF50]/10 rounded-lg flex items-center justify-center"
+              >
                 <span className="text-lg">{emoji}</span>
               </div>
             ))}
@@ -130,9 +148,9 @@ export function ProfilePage({ setCurrentPage }: ProfilePageProps) {
         </Card>
 
         {/* Logout */}
-        <Button 
-          onClick={() => setCurrentPage('auth')}
-          variant="outline" 
+        <Button
+          onClick={() => setCurrentPage("auth")}
+          variant="outline"
           className="w-full border-red-200 text-red-500 hover:bg-red-50"
         >
           <LogOut className="w-4 h-4 mr-2" />

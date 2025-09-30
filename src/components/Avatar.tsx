@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
-import { Image, View, Text, StyleSheet, ImageStyle, ViewStyle } from 'react-native';
+import React, { useState } from "react";
+import {
+  Image,
+  View,
+  Text,
+  StyleSheet,
+  ImageStyle,
+  ViewStyle,
+} from "react-native";
 
 interface AvatarProps {
   uri?: string;
@@ -9,7 +16,13 @@ interface AvatarProps {
   imageStyle?: ImageStyle;
 }
 
-export const Avatar: React.FC<AvatarProps> = ({ uri, initials, size = 72, style, imageStyle }) => {
+export const Avatar: React.FC<AvatarProps> = ({
+  uri,
+  initials,
+  size = 72,
+  style,
+  imageStyle,
+}) => {
   const [hasError, setHasError] = useState(false);
   const dimension = { width: size, height: size, borderRadius: size / 2 };
 
@@ -32,22 +45,22 @@ export const Avatar: React.FC<AvatarProps> = ({ uri, initials, size = 72, style,
 
 const styles = StyleSheet.create({
   container: {
-    overflow: 'hidden',
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    overflow: "hidden",
+    backgroundColor: "rgba(76, 175, 80, 0.1)",
   },
   image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   fallback: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   initials: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#4CAF50',
+    fontWeight: "700",
+    color: "#4CAF50",
   },
 });

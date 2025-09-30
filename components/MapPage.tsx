@@ -12,7 +12,7 @@ export function MapPage() {
       address: "ул. Ленина, 45",
       distance: "0.3 км",
       types: ["Пластик", "Стекло", "Бумага"],
-      isOpen: true
+      isOpen: true,
     },
     {
       id: 2,
@@ -20,7 +20,7 @@ export function MapPage() {
       address: "пр. Мира, 12",
       distance: "0.7 км",
       types: ["Металл", "Батарейки"],
-      isOpen: true
+      isOpen: true,
     },
     {
       id: 3,
@@ -28,8 +28,8 @@ export function MapPage() {
       address: "ул. Садовая, 88",
       distance: "1.2 км",
       types: ["Пластик", "Бумага", "Одежда"],
-      isOpen: false
-    }
+      isOpen: false,
+    },
   ];
 
   return (
@@ -40,15 +40,19 @@ export function MapPage() {
           <MapPin className="w-6 h-6 text-[#4CAF50]" />
           <h1 className="font-medium">Пункты утилизации</h1>
         </div>
-        
+
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
-          <Input 
+          <Input
             placeholder="Введите адрес..."
             className="pl-10 pr-12 rounded-xl border-gray-200"
           />
-          <Button size="sm" variant="ghost" className="absolute right-2 top-1/2 transform -translate-y-1/2">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+          >
             <Filter className="w-4 h-4" />
           </Button>
         </div>
@@ -91,18 +95,22 @@ export function MapPage() {
                 <p className="text-sm text-[#9E9E9E]">{point.address}</p>
               </div>
               <div className="text-right">
-                <span className="text-sm font-medium text-[#00BCD4]">{point.distance}</span>
-                <div className={`text-xs mt-1 ${point.isOpen ? 'text-[#4CAF50]' : 'text-red-500'}`}>
-                  {point.isOpen ? 'Открыто' : 'Закрыто'}
+                <span className="text-sm font-medium text-[#00BCD4]">
+                  {point.distance}
+                </span>
+                <div
+                  className={`text-xs mt-1 ${point.isOpen ? "text-[#4CAF50]" : "text-red-500"}`}
+                >
+                  {point.isOpen ? "Открыто" : "Закрыто"}
                 </div>
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-1">
               {point.types.map((type, index) => (
-                <Badge 
-                  key={index} 
-                  variant="secondary" 
+                <Badge
+                  key={index}
+                  variant="secondary"
                   className="text-xs bg-[#4CAF50]/10 text-[#4CAF50] border-[#4CAF50]/20"
                 >
                   {type}

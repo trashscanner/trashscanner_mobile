@@ -6,10 +6,6 @@
     "jsx": "react-jsx",
     "types": ["expo", "react", "react-native"]
   },
-  "include": [
-    "App.tsx",
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ],
+  "include": ["App.tsx", "src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "babel.config.js", "components", "styles"]
 }

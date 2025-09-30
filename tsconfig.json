@@ -4,8 +4,8 @@
     "strict": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["expo", "react", "react-native"]
+    "types": ["expo", "react", "react-native", "jest"]
   },
-  "include": ["App.tsx", "src/**/*.ts", "src/**/*.tsx"],
+  "include": ["App.tsx", "src/**/*.ts", "src/**/*.tsx", "__tests__/**/*.ts", "__tests__/**/*.tsx"],
   "exclude": ["node_modules", "babel.config.js", "components", "styles"]
 }

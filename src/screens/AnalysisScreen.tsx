@@ -17,7 +17,11 @@ const analysisResult = {
   confidence: 95,
 };
 
-export const AnalysisScreen: React.FC<AnalysisScreenProps> = ({ imageUri, onRepeat, onFindPoints }) => {
+export const AnalysisScreen: React.FC<AnalysisScreenProps> = ({
+  imageUri,
+  onRepeat,
+  onFindPoints,
+}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -62,7 +66,9 @@ export const AnalysisScreen: React.FC<AnalysisScreenProps> = ({ imageUri, onRepe
           <View style={styles.confidenceRow}>
             <Text style={styles.confidenceLabel}>Уверенность</Text>
             <View style={styles.confidenceBarBg}>
-              <View style={[styles.confidenceBarFill, { width: `${analysisResult.confidence}%` }]} />
+              <View
+                style={[styles.confidenceBarFill, { width: `${analysisResult.confidence}%` }]}
+              />
             </View>
             <Text style={styles.confidenceValue}>{analysisResult.confidence}%</Text>
           </View>

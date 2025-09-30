@@ -12,7 +12,8 @@ interface ProfileScreenProps {
 const user = {
   name: 'Анна Петрова',
   email: 'anna.petrova@email.com',
-  avatar: 'https://images.unsplash.com/photo-1494790108755-2616c13488ac?auto=format&fit=crop&w=200&q=80',
+  avatar:
+    'https://images.unsplash.com/photo-1494790108755-2616c13488ac?auto=format&fit=crop&w=200&q=80',
 };
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {

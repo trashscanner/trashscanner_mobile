@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { Eye, EyeOff, Leaf } from "lucide-react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useState } from 'react';
+import { Eye, EyeOff, Leaf } from 'lucide-react';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface AuthPageProps {
   setCurrentPage: (page: string) => void;
@@ -13,9 +13,9 @@ export function AuthPage({ setCurrentPage }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: ""
+    name: '',
+    email: '',
+    password: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,7 +62,7 @@ export function AuthPage({ setCurrentPage }: AuthPageProps) {
                   type="text"
                   placeholder="Ваше имя"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                   className="rounded-xl border-gray-200"
                 />
               </div>
@@ -73,17 +73,17 @@ export function AuthPage({ setCurrentPage }: AuthPageProps) {
                 type="email"
                 placeholder="Email"
                 value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                 className="rounded-xl border-gray-200"
               />
             </div>
 
             <div className="relative">
               <Input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Пароль"
                 value={formData.password}
-                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
                 className="rounded-xl border-gray-200 pr-12"
               />
               <Button
@@ -97,7 +97,7 @@ export function AuthPage({ setCurrentPage }: AuthPageProps) {
               </Button>
             </div>
 
-            <Button 
+            <Button
               type="submit"
               className="w-full bg-[#4CAF50] hover:bg-[#45a049] text-white rounded-xl h-12"
             >
@@ -110,10 +110,7 @@ export function AuthPage({ setCurrentPage }: AuthPageProps) {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-sm text-[#00BCD4] hover:underline"
               >
-                {isLogin 
-                  ? 'Нет аккаунта? Зарегистрируйтесь' 
-                  : 'Уже есть аккаунт? Войдите'
-                }
+                {isLogin ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
               </button>
             </div>
           </form>

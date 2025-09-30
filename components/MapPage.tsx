@@ -1,35 +1,35 @@
-import { Search, MapPin, Navigation, Filter } from "lucide-react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Search, MapPin, Navigation, Filter } from 'lucide-react';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
+import { Badge } from './ui/badge';
 
 export function MapPage() {
   const recyclingPoints = [
     {
       id: 1,
-      name: "Эко-центр Зелёный",
-      address: "ул. Ленина, 45",
-      distance: "0.3 км",
-      types: ["Пластик", "Стекло", "Бумага"],
-      isOpen: true
+      name: 'Эко-центр Зелёный',
+      address: 'ул. Ленина, 45',
+      distance: '0.3 км',
+      types: ['Пластик', 'Стекло', 'Бумага'],
+      isOpen: true,
     },
     {
       id: 2,
-      name: "Пункт сбора MetalCorp",
-      address: "пр. Мира, 12",
-      distance: "0.7 км",
-      types: ["Металл", "Батарейки"],
-      isOpen: true
+      name: 'Пункт сбора MetalCorp',
+      address: 'пр. Мира, 12',
+      distance: '0.7 км',
+      types: ['Металл', 'Батарейки'],
+      isOpen: true,
     },
     {
       id: 3,
-      name: "Городской экопункт",
-      address: "ул. Садовая, 88",
-      distance: "1.2 км",
-      types: ["Пластик", "Бумага", "Одежда"],
-      isOpen: false
-    }
+      name: 'Городской экопункт',
+      address: 'ул. Садовая, 88',
+      distance: '1.2 км',
+      types: ['Пластик', 'Бумага', 'Одежда'],
+      isOpen: false,
+    },
   ];
 
   return (
@@ -40,15 +40,19 @@ export function MapPage() {
           <MapPin className="w-6 h-6 text-[#4CAF50]" />
           <h1 className="font-medium">Пункты утилизации</h1>
         </div>
-        
+
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
-          <Input 
+          <Input
             placeholder="Введите адрес..."
             className="pl-10 pr-12 rounded-xl border-gray-200"
           />
-          <Button size="sm" variant="ghost" className="absolute right-2 top-1/2 transform -translate-y-1/2">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+          >
             <Filter className="w-4 h-4" />
           </Button>
         </div>
@@ -97,12 +101,12 @@ export function MapPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-1">
               {point.types.map((type, index) => (
-                <Badge 
-                  key={index} 
-                  variant="secondary" 
+                <Badge
+                  key={index}
+                  variant="secondary"
                   className="text-xs bg-[#4CAF50]/10 text-[#4CAF50] border-[#4CAF50]/20"
                 >
                   {type}

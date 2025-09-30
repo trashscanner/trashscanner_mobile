@@ -78,7 +78,15 @@ export const StatsScreen: React.FC = () => {
                   <Text style={styles.wasteCount}>{item.count}</Text>
                 </View>
                 <View style={styles.progressBarBg}>
-                  <View style={[styles.progressBarFill, { width: `${item.percentage}%`, backgroundColor: item.color }]} />
+                  <View
+                    style={[
+                      styles.progressBarFill,
+                      {
+                        width: `${item.percentage}%`,
+                        backgroundColor: item.color,
+                      },
+                    ]}
+                  />
                 </View>
               </View>
             ))}

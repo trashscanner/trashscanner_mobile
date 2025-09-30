@@ -1,0 +1,178 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  lint:
+    name: 🔍 Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎨 Check formatting
+        run: npm run format:check
+
+      - name: 🔎 TypeScript check
+        run: npm run typecheck
+
+  test:
+    name: 🧪 Test & Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Run tests
+        run: npm test -- --coverage --watchAll=false
+        continue-on-error: true
+
+      - name: 📤 Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+        if: always()
+
+      - name: 📊 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  build:
+    name: 🏗️ Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 📦 Install web dependencies
+        run: npx expo install react-dom react-native-web
+
+      - name: 🏗️ Build web version
+        run: npx expo export --platform web
+
+      - name: 📤 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: dist/
+          retention-days: 7
+
+  preview:
+    name: 🚀 Deploy Preview
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    environment:
+      name: preview
+      url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: dist/
+
+      - name: � Fix paths for GitHub Pages subdirectory
+        run: |
+          cd dist
+          # Replace absolute paths with relative paths in index.html
+          sed -i 's|src="/_expo/|src="./_expo/|g' index.html
+          sed -i 's|href="/_expo/|href="./_expo/|g' index.html
+
+      - name: �🚀 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          destination_dir: pr-${{ github.event.pull_request.number }}
+
+      - name: 💬 Comment PR with preview link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const repoOwner = context.repo.owner;
+            const repoName = context.repo.repo;
+            const previewUrl = `https://${repoOwner}.github.io/${repoName}/pr-${prNumber}/`;
+
+            const message = `### 🎉 Preview Ready!
+
+            ✅ Web build deployed successfully
+
+            🔗 **Preview URL:** ${previewUrl}
+
+            📦 Build artifacts are also available for download in the Actions tab`;
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: message
+            });
+
+  quality-gate:
+    name: ✅ Quality Gate
+    runs-on: ubuntu-latest
+    needs: [lint, test, build]
+    environment: CI
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📥 Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+        continue-on-error: true
+
+      - name: 🔍 SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io

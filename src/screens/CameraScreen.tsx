@@ -6,7 +6,8 @@ interface CameraScreenProps {
   onCapture: (imageUri: string) => void;
 }
 
-const SAMPLE_IMAGE = 'https://images.unsplash.com/photo-1606037150583-fb842a55bae7?auto=format&fit=crop&w=1080&q=80';
+const SAMPLE_IMAGE =
+  'https://images.unsplash.com/photo-1606037150583-fb842a55bae7?auto=format&fit=crop&w=1080&q=80';
 
 export const CameraScreen: React.FC<CameraScreenProps> = ({ onCapture }) => {
   const handleCapture = () => {

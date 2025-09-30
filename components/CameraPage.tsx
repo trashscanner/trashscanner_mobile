@@ -1,5 +1,5 @@
-import { Camera, Zap } from "lucide-react";
-import { Button } from "./ui/button";
+import { Camera, Zap } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface CameraPageProps {
   setCurrentPage: (page: string) => void;
@@ -9,7 +9,9 @@ interface CameraPageProps {
 export function CameraPage({ setCurrentPage, setCapturedImage }: CameraPageProps) {
   const handleTakePhoto = () => {
     // Симуляция захвата фото
-    setCapturedImage("https://images.unsplash.com/photo-1606037150583-fb842a55bae7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmFzaCUyMHBsYXN0aWMlMjByZWN5Y2xpbmd8ZW58MXx8fHwxNzU4ODI1NzQwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral");
+    setCapturedImage(
+      'https://images.unsplash.com/photo-1606037150583-fb842a55bae7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmFzaCUyMHBsYXN0aWMlMjByZWN5Y2xpbmd8ZW58MXx8fHwxNzU4ODI1NzQwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+    );
     setCurrentPage('analysis');
   };
 
@@ -39,7 +41,7 @@ export function CameraPage({ setCurrentPage, setCapturedImage }: CameraPageProps
               </div>
             </div>
           </div>
-          
+
           {/* Crosshair */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative">

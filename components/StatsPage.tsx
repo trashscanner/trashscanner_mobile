@@ -1,20 +1,20 @@
-import { BarChart3, TrendingUp, Award, Recycle } from "lucide-react";
-import { Card } from "./ui/card";
-import { Progress } from "./ui/progress";
+import { BarChart3, TrendingUp, Award, Recycle } from 'lucide-react';
+import { Card } from './ui/card';
+import { Progress } from './ui/progress';
 
 export function StatsPage() {
   const stats = {
     totalAnalyzed: 127,
     totalRecycled: 45.2,
     weeklyGrowth: 12,
-    rank: "Эко-активист"
+    rank: 'Эко-активист',
   };
 
   const wasteTypes = [
-    { type: "Пластик", count: 54, percentage: 42, color: "#4CAF50" },
-    { type: "Стекло", count: 28, percentage: 22, color: "#00BCD4" },
-    { type: "Бумага", count: 25, percentage: 20, color: "#FF9800" },
-    { type: "Металл", count: 20, percentage: 16, color: "#9C27B0" }
+    { type: 'Пластик', count: 54, percentage: 42, color: '#4CAF50' },
+    { type: 'Стекло', count: 28, percentage: 22, color: '#00BCD4' },
+    { type: 'Бумага', count: 25, percentage: 20, color: '#FF9800' },
+    { type: 'Металл', count: 20, percentage: 16, color: '#9C27B0' },
   ];
 
   return (
@@ -83,10 +83,7 @@ export function StatsPage() {
                   <span className="text-sm">{item.type}</span>
                   <span className="text-sm font-medium">{item.count}</span>
                 </div>
-                <Progress 
-                  value={item.percentage} 
-                  className="h-2"
-                />
+                <Progress value={item.percentage} className="h-2" />
               </div>
             ))}
           </div>

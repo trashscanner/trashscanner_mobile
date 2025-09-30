@@ -9,7 +9,11 @@ interface NavigationBarProps {
   onNavigate: (key: BottomTabKey) => void;
 }
 
-const NAV_ITEMS: Array<{ key: BottomTabKey; label: string; icon: React.ComponentProps<typeof Feather>['name'] }> = [
+const NAV_ITEMS: Array<{
+  key: BottomTabKey;
+  label: string;
+  icon: React.ComponentProps<typeof Feather>['name'];
+}> = [
   { key: 'camera', label: 'Камера', icon: 'camera' },
   { key: 'stats', label: 'Статистика', icon: 'bar-chart-2' },
   { key: 'map', label: 'Карта', icon: 'map-pin' },
@@ -29,11 +33,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ active, onNavigate
               activeOpacity={0.8}
               style={[styles.item, isActive && styles.itemActive]}
             >
-              <Feather
-                name={item.icon}
-                size={22}
-                color={isActive ? '#4CAF50' : '#9E9E9E'}
-              />
+              <Feather name={item.icon} size={22} color={isActive ? '#4CAF50' : '#9E9E9E'} />
               <Text style={[styles.label, isActive && styles.labelActive]}>{item.label}</Text>
             </TouchableOpacity>
           );

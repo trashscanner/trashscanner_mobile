@@ -1,4 +1,4 @@
-import { Camera, BarChart3, MapPin, User } from "lucide-react";
+import { Camera, BarChart3, MapPin, User } from 'lucide-react';
 
 interface NavigationProps {
   currentPage: string;
@@ -19,15 +19,13 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentPage === item.id;
-          
+
           return (
             <button
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
               className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
-                isActive 
-                  ? 'text-[#4CAF50]' 
-                  : 'text-[#9E9E9E] hover:text-[#4CAF50]'
+                isActive ? 'text-[#4CAF50]' : 'text-[#9E9E9E] hover:text-[#4CAF50]'
               }`}
             >
               <Icon size={24} />

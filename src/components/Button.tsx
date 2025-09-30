@@ -35,7 +35,9 @@ export const Button: React.FC<ButtonProps> = ({
       style={[styles.base, styles[variant], disabled && styles.disabled, style]}
     >
       <View style={styles.content}>
-        {iconName ? <Feather name={iconName} size={18} color={iconColor} style={styles.icon} /> : null}
+        {iconName ? (
+          <Feather name={iconName} size={18} color={iconColor} style={styles.icon} />
+        ) : null}
         <Text
           style={[
             styles.label,

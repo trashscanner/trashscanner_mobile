@@ -42,7 +42,12 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onCapture }) => {
       </View>
 
       <View style={styles.captureButtonWrapper}>
-        <TouchableOpacity activeOpacity={0.85} onPress={handleCapture} style={styles.captureButton}>
+        <TouchableOpacity
+          testID="capture-button"
+          activeOpacity={0.85}
+          onPress={handleCapture}
+          style={styles.captureButton}
+        >
           <Feather name="camera" size={32} color="#ffffff" />
         </TouchableOpacity>
       </View>

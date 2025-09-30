@@ -29,6 +29,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ active, onNavigate
           return (
             <TouchableOpacity
               key={item.key}
+              testID={`nav-${item.key}`}
               onPress={() => onNavigate(item.key)}
               activeOpacity={0.8}
               style={[styles.item, isActive && styles.itemActive]}

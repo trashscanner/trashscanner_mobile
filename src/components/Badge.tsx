@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native";
+import React from 'react';
+import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 
 interface BadgeProps {
   label: string;
@@ -17,14 +17,14 @@ export const Badge: React.FC<BadgeProps> = ({ label, style, textStyle }) => {
 
 const styles = StyleSheet.create({
   badge: {
-    backgroundColor: "rgba(76, 175, 80, 0.1)",
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   label: {
     fontSize: 12,
-    color: "#4CAF50",
-    fontWeight: "600",
+    color: '#4CAF50',
+    fontWeight: '600',
   },
 });

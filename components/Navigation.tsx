@@ -1,4 +1,4 @@
-import { Camera, BarChart3, MapPin, User } from "lucide-react";
+import { Camera, BarChart3, MapPin, User } from 'lucide-react';
 
 interface NavigationProps {
   currentPage: string;
@@ -7,10 +7,10 @@ interface NavigationProps {
 
 export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
   const navigationItems = [
-    { id: "camera", icon: Camera, label: "Камера" },
-    { id: "stats", icon: BarChart3, label: "Статистика" },
-    { id: "map", icon: MapPin, label: "Карта" },
-    { id: "profile", icon: User, label: "Профиль" },
+    { id: 'camera', icon: Camera, label: 'Камера' },
+    { id: 'stats', icon: BarChart3, label: 'Статистика' },
+    { id: 'map', icon: MapPin, label: 'Карта' },
+    { id: 'profile', icon: User, label: 'Профиль' },
   ];
 
   return (
@@ -25,9 +25,7 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
               className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
-                isActive
-                  ? "text-[#4CAF50]"
-                  : "text-[#9E9E9E] hover:text-[#4CAF50]"
+                isActive ? 'text-[#4CAF50]' : 'text-[#9E9E9E] hover:text-[#4CAF50]'
               }`}
             >
               <Icon size={24} />

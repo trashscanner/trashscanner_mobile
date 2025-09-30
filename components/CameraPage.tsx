@@ -1,21 +1,18 @@
-import { Camera, Zap } from "lucide-react";
-import { Button } from "./ui/button";
+import { Camera, Zap } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface CameraPageProps {
   setCurrentPage: (page: string) => void;
   setCapturedImage: (image: string | null) => void;
 }
 
-export function CameraPage({
-  setCurrentPage,
-  setCapturedImage,
-}: CameraPageProps) {
+export function CameraPage({ setCurrentPage, setCapturedImage }: CameraPageProps) {
   const handleTakePhoto = () => {
     // Симуляция захвата фото
     setCapturedImage(
-      "https://images.unsplash.com/photo-1606037150583-fb842a55bae7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmFzaCUyMHBsYXN0aWMlMjByZWN5Y2xpbmd8ZW58MXx8fHwxNzU4ODI1NzQwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+      'https://images.unsplash.com/photo-1606037150583-fb842a55bae7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmFzaCUyMHBsYXN0aWMlMjByZWN5Y2xpbmd8ZW58MXx8fHwxNzU4ODI1NzQwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
     );
-    setCurrentPage("analysis");
+    setCurrentPage('analysis');
   };
 
   return (
@@ -40,9 +37,7 @@ export function CameraPage({
                 <div className="w-16 h-16 bg-[#4CAF50]/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Camera className="w-8 h-8 text-[#4CAF50]" />
                 </div>
-                <p className="text-sm text-[#9E9E9E]">
-                  Наведите камеру на мусор
-                </p>
+                <p className="text-sm text-[#9E9E9E]">Наведите камеру на мусор</p>
               </div>
             </div>
           </div>

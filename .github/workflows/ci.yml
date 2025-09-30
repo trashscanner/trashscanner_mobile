@@ -127,7 +127,7 @@ jobs:
           script: |
             const prNumber = context.payload.pull_request.number;
             const message = `### 🎉 Preview Ready!\n\n📱 Scan QR code in Expo Go app:\n\n\`\`\`\nexp://exp.host/@${process.env.EXPO_USERNAME}/${process.env.EXPO_SLUG}?release-channel=pr-${prNumber}\n\`\`\``;
-            
+
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,

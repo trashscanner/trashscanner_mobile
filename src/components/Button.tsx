@@ -1,17 +1,10 @@
-import React from "react";
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
-  View,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
+import React from 'react';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
-type ButtonVariant = "primary" | "outline" | "ghost";
+type ButtonVariant = 'primary' | 'outline' | 'ghost';
 
-type IconName = React.ComponentProps<typeof Feather>["name"];
+type IconName = React.ComponentProps<typeof Feather>['name'];
 
 interface ButtonProps {
   label: string;
@@ -27,12 +20,12 @@ export const Button: React.FC<ButtonProps> = ({
   label,
   onPress,
   iconName,
-  variant = "primary",
+  variant = 'primary',
   disabled = false,
   style,
   textStyle,
 }) => {
-  const iconColor = variant === "primary" ? "#ffffff" : "#26a69a";
+  const iconColor = variant === 'primary' ? '#ffffff' : '#26a69a';
 
   return (
     <TouchableOpacity
@@ -43,12 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
     >
       <View style={styles.content}>
         {iconName ? (
-          <Feather
-            name={iconName}
-            size={18}
-            color={iconColor}
-            style={styles.icon}
-          />
+          <Feather name={iconName} size={18} color={iconColor} style={styles.icon} />
         ) : null}
         <Text
           style={[
@@ -69,47 +57,47 @@ const styles = StyleSheet.create({
   base: {
     height: 52,
     borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 18,
   },
   content: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   icon: {
     marginRight: 8,
   },
   primary: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: '#4CAF50',
   },
   outline: {
     borderWidth: 1,
-    borderColor: "#00BCD4",
-    backgroundColor: "transparent",
+    borderColor: '#00BCD4',
+    backgroundColor: 'transparent',
   },
   ghost: {
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
   },
   label: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
     letterSpacing: 0.2,
   },
   primaryText: {
-    color: "#ffffff",
+    color: '#ffffff',
   },
   outlineText: {
-    color: "#00BCD4",
+    color: '#00BCD4',
   },
   ghostText: {
-    color: "#26a69a",
+    color: '#26a69a',
   },
   disabled: {
     opacity: 0.5,
   },
   disabledText: {
-    color: "#e0e0e0",
+    color: '#e0e0e0',
   },
 });

@@ -1,33 +1,33 @@
-import { Search, MapPin, Navigation, Filter } from "lucide-react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Search, MapPin, Navigation, Filter } from 'lucide-react';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
+import { Badge } from './ui/badge';
 
 export function MapPage() {
   const recyclingPoints = [
     {
       id: 1,
-      name: "Эко-центр Зелёный",
-      address: "ул. Ленина, 45",
-      distance: "0.3 км",
-      types: ["Пластик", "Стекло", "Бумага"],
+      name: 'Эко-центр Зелёный',
+      address: 'ул. Ленина, 45',
+      distance: '0.3 км',
+      types: ['Пластик', 'Стекло', 'Бумага'],
       isOpen: true,
     },
     {
       id: 2,
-      name: "Пункт сбора MetalCorp",
-      address: "пр. Мира, 12",
-      distance: "0.7 км",
-      types: ["Металл", "Батарейки"],
+      name: 'Пункт сбора MetalCorp',
+      address: 'пр. Мира, 12',
+      distance: '0.7 км',
+      types: ['Металл', 'Батарейки'],
       isOpen: true,
     },
     {
       id: 3,
-      name: "Городской экопункт",
-      address: "ул. Садовая, 88",
-      distance: "1.2 км",
-      types: ["Пластик", "Бумага", "Одежда"],
+      name: 'Городской экопункт',
+      address: 'ул. Садовая, 88',
+      distance: '1.2 км',
+      types: ['Пластик', 'Бумага', 'Одежда'],
       isOpen: false,
     },
   ];
@@ -95,13 +95,9 @@ export function MapPage() {
                 <p className="text-sm text-[#9E9E9E]">{point.address}</p>
               </div>
               <div className="text-right">
-                <span className="text-sm font-medium text-[#00BCD4]">
-                  {point.distance}
-                </span>
-                <div
-                  className={`text-xs mt-1 ${point.isOpen ? "text-[#4CAF50]" : "text-red-500"}`}
-                >
-                  {point.isOpen ? "Открыто" : "Закрыто"}
+                <span className="text-sm font-medium text-[#00BCD4]">{point.distance}</span>
+                <div className={`text-xs mt-1 ${point.isOpen ? 'text-[#4CAF50]' : 'text-red-500'}`}>
+                  {point.isOpen ? 'Открыто' : 'Закрыто'}
                 </div>
               </div>
             </div>

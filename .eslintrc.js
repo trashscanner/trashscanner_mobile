@@ -9,11 +9,5 @@ module.exports = {
     'react-native/split-platform-components': 'warn',
     'react-native/no-inline-styles': 'warn',
   },
-  ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'coverage/',
-    '*.config.js',
-    '.expo/',
-  ],
+  ignorePatterns: ['node_modules/', 'dist/', 'coverage/', '*.config.js', '.expo/'],
 };

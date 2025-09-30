@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "./utils";
+import * as React from 'react';
+import { cn } from './utils';
 
 interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number;
@@ -10,10 +10,7 @@ interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
 function Progress({ className, value, ...props }: ProgressProps) {
   return (
     <div
-      className={cn(
-        "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",
-        className,
-      )}
+      className={cn('bg-primary/20 relative h-2 w-full overflow-hidden rounded-full', className)}
       {...props}
     >
       <div

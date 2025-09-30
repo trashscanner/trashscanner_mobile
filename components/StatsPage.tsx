@@ -1,20 +1,20 @@
-import { BarChart3, TrendingUp, Award, Recycle } from "lucide-react";
-import { Card } from "./ui/card";
-import { Progress } from "./ui/progress";
+import { BarChart3, TrendingUp, Award, Recycle } from 'lucide-react';
+import { Card } from './ui/card';
+import { Progress } from './ui/progress';
 
 export function StatsPage() {
   const stats = {
     totalAnalyzed: 127,
     totalRecycled: 45.2,
     weeklyGrowth: 12,
-    rank: "Эко-активист",
+    rank: 'Эко-активист',
   };
 
   const wasteTypes = [
-    { type: "Пластик", count: 54, percentage: 42, color: "#4CAF50" },
-    { type: "Стекло", count: 28, percentage: 22, color: "#00BCD4" },
-    { type: "Бумага", count: 25, percentage: 20, color: "#FF9800" },
-    { type: "Металл", count: 20, percentage: 16, color: "#9C27B0" },
+    { type: 'Пластик', count: 54, percentage: 42, color: '#4CAF50' },
+    { type: 'Стекло', count: 28, percentage: 22, color: '#00BCD4' },
+    { type: 'Бумага', count: 25, percentage: 20, color: '#FF9800' },
+    { type: 'Металл', count: 20, percentage: 16, color: '#9C27B0' },
   ];
 
   return (
@@ -67,9 +67,7 @@ export function StatsPage() {
               <p className="text-[#4CAF50] font-medium">{stats.rank}</p>
               <div className="flex items-center gap-2 mt-2">
                 <TrendingUp className="w-4 h-4 text-[#00BCD4]" />
-                <span className="text-sm text-[#9E9E9E]">
-                  +{stats.weeklyGrowth}% за неделю
-                </span>
+                <span className="text-sm text-[#9E9E9E]">+{stats.weeklyGrowth}% за неделю</span>
               </div>
             </div>
           </div>
@@ -98,9 +96,7 @@ export function StatsPage() {
             <span className="text-sm text-[#4CAF50] font-medium">7/10</span>
           </div>
           <Progress value={70} className="h-3 mb-2" />
-          <p className="text-sm text-[#9E9E9E]">
-            Проанализировать 10 предметов
-          </p>
+          <p className="text-sm text-[#9E9E9E]">Проанализировать 10 предметов</p>
         </Card>
       </div>
     </div>

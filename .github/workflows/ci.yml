@@ -81,6 +81,9 @@ jobs:
           expo-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: 📦 Install web dependencies
+        run: npx expo install react-dom react-native-web
+
       - name: 🏗️ Build web version
         run: npx expo export --platform web
 

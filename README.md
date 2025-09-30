@@ -1,7 +1,7 @@
 # TrashScanner Mobile 🌱♻️
 
-[![CI](https://github.com/trashscanner/trashscanner_mobile/actions/workflows/ci.yml/badge.svg)](https://github.com/trashscanner/trashscanner_mobile/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/trashscanner/trashscanner_mobile/branch/main/graph/badge.svg)](https://codecov.io/gh/trashscanner/trashscanner_mobile)
+[![CI](https://github.com/trashscanner/trashscanner_mobile/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/trashscanner/trashscanner_mobile/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/trashscanner/trashscanner_mobile/branch/master/graph/badge.svg)](https://codecov.io/gh/trashscanner/trashscanner_mobile)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trashscanner_trashscanner_mobile&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=trashscanner_trashscanner_mobile)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=trashscanner_trashscanner_mobile&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=trashscanner_trashscanner_mobile)
 
@@ -114,7 +114,7 @@ npm run test:coverage
 - ✅ **Lint & Format**: проверка кода на стиль
 - 🧪 **Tests**: запуск unit-тестов с покрытием
 - 🏗️ **Build**: сборка приложения
-- 🚀 **Preview**: деплой превью на Expo для PR
+- 🚀 **Preview**: деплой preview на GitHub Pages для PR
 - 📊 **Quality Gate**: анализ в SonarCloud
 
 Pipeline запускается автоматически при создании Pull Request.

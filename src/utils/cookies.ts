@@ -1,27 +1,54 @@
+// In-memory store for Expo Go fallback
+let memoryCookies: Record<string, string> = {};
+
 // Mock implementation for Expo Go or when native module is missing
 const MockCookieManager = {
     flush: async () => {
-        console.warn('CookieManager.flush: Native module not found (running in Expo Go?)');
+        // No-op
     },
     clearAll: async () => {
-        console.warn('CookieManager.clearAll: Native module not found (running in Expo Go?)');
+        memoryCookies = {};
     },
     get: async (_url: string) => {
-        console.warn('CookieManager.get: Native module not found (running in Expo Go?)');
-        return {};
+        return memoryCookies;
     },
-    set: async (_url: string, _cookie: any) => {
-        console.warn('CookieManager.set: Native module not found (running in Expo Go?)');
+    set: async (_url: string, cookie: any) => {
+        if (cookie && cookie.name) {
+            memoryCookies[cookie.name] = cookie.value;
+        }
         return true;
     },
-    setFromResponse: async (_url: string, _cookie: string) => {
-        console.warn('CookieManager.setFromResponse: Native module not found (running in Expo Go?)');
+    setFromResponse: async (_url: string, cookie: string) => {
+        // Simple parsing of "name=value; ..."
+        const parts = cookie.split(';');
+        if (parts.length > 0) {
+            const [name, value] = parts[0].split('=');
+            if (name) {
+                memoryCookies[name.trim()] = value ? value.trim() : '';
+            }
+        }
         return true;
     },
     getAll: async () => {
-        console.warn('CookieManager.getAll: Native module not found (running in Expo Go?)');
-        return {};
+        return memoryCookies;
     },
+    // Custom helper to extract cookies from Axios headers
+    extractFromHeaders: (headers: any) => {
+        const setCookie = headers['set-cookie'] || headers['Set-Cookie'];
+        if (setCookie) {
+            if (Array.isArray(setCookie)) {
+                setCookie.forEach((c: string) => MockCookieManager.setFromResponse('', c));
+            } else if (typeof setCookie === 'string') {
+                MockCookieManager.setFromResponse('', setCookie);
+            }
+        }
+    },
+    // Custom helper to get Cookie header string
+    getCookieString: () => {
+        return Object.entries(memoryCookies)
+            .map(([name, value]) => `${name}=${value}`)
+            .join('; ');
+    }
 };
 
 let SafeCookieManager = MockCookieManager;

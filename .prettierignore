@@ -1,0 +1,6 @@
+swagger.yaml
+package-lock.json
+node_modules
+.expo
+dist
+web-build

@@ -28,6 +28,15 @@ axiosRetry(client, {
 // Request interceptor
 client.interceptors.request.use(
   async (config) => {
+    // Debug logging in development
+    if (__DEV__) {
+      const fullUrl = `${config.baseURL}${config.url}`;
+      console.log(`🚀 API ${config.method?.toUpperCase()}: ${fullUrl}`);
+      if (config.data) {
+        console.log('   Request data:', JSON.stringify(config.data).substring(0, 200));
+      }
+    }
+
     // On mobile, we might need to manually ensure cookies are synced/sent
     // but usually withCredentials: true handles it if the native networking stack is used.
     // However, explicit cookie management can be safer.
@@ -46,9 +55,7 @@ client.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor

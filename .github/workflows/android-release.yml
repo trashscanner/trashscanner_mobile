@@ -37,15 +37,15 @@ jobs:
         id: set_env
         run: |
           echo "Using TEST environment variables"
-          echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL_TEST }}" >> $GITHUB_ENV
-          echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL_TEST }}" >> $GITHUB_ENV
-          echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET_TEST }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}" >> $GITHUB_ENV
           echo "NODE_ENV=test" >> $GITHUB_ENV
           echo "Environment variables set:"
-          echo "EXPO_PUBLIC_API_URL=$EXPO_PUBLIC_API_URL"
-          echo "EXPO_PUBLIC_STORAGE_URL=$EXPO_PUBLIC_STORAGE_URL"
-          echo "EXPO_PUBLIC_STORAGE_BUCKET=$EXPO_PUBLIC_STORAGE_BUCKET"
-          echo "NODE_ENV=$NODE_ENV"
+          echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL }}"
+          echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}"
+          echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}"
+          echo "NODE_ENV=test"
 
       - name: 🏗️ Build Android APK and wait for completion
         id: build
@@ -123,8 +123,8 @@ jobs:
             
             ### 🔧 Configuration
             - **Environment**: Test
-            - **API Endpoint**: `${{ vars.EXPO_PUBLIC_API_URL_TEST }}`
-            - **Storage**: `${{ vars.EXPO_PUBLIC_STORAGE_URL_TEST }}`
+            - **API Endpoint**: `${{ vars.EXPO_PUBLIC_API_URL }}`
+            - **Storage**: `${{ vars.EXPO_PUBLIC_STORAGE_URL }}`
             
             ### 📝 Installation Instructions
             1. Download the APK file using the link above

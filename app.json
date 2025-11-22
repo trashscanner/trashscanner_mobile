@@ -22,8 +22,7 @@
     },
     "plugins": [
       "expo-asset",
-      "expo-font",
-      "@react-native-cookies/cookies"
+      "expo-font"
     ]
   }
 }

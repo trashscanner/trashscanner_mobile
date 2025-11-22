@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // In-memory store for Expo Go fallback
 let memoryCookies: Record<string, string> = {};
 
@@ -49,6 +50,32 @@ const MockCookieManager = {
       .map(([name, value]) => `${name}=${value}`)
       .join('; ');
   },
+=======
+// Mock implementation for Expo Go or when native module is missing
+const MockCookieManager = {
+    flush: async () => {
+        console.warn('CookieManager.flush: Native module not found (running in Expo Go?)');
+    },
+    clearAll: async () => {
+        console.warn('CookieManager.clearAll: Native module not found (running in Expo Go?)');
+    },
+    get: async (_url: string) => {
+        console.warn('CookieManager.get: Native module not found (running in Expo Go?)');
+        return {};
+    },
+    set: async (_url: string, _cookie: any) => {
+        console.warn('CookieManager.set: Native module not found (running in Expo Go?)');
+        return true;
+    },
+    setFromResponse: async (_url: string, _cookie: string) => {
+        console.warn('CookieManager.setFromResponse: Native module not found (running in Expo Go?)');
+        return true;
+    },
+    getAll: async () => {
+        console.warn('CookieManager.getAll: Native module not found (running in Expo Go?)');
+        return {};
+    },
+>>>>>>> 6b4e35e (fix: resolve native module crash with safe wrapper)
 };
 
 let SafeCookieManager = MockCookieManager;

@@ -17,6 +17,15 @@ export interface AuthResponse {
     };
 }
 
+export interface ChangePasswordRequest {
+    new_password?: string;
+    old_password?: string;
+}
+
+export interface UploadAvatarResponse {
+    avatar_url: string;
+}
+
 // User Types
 export enum UserStatus {
     Newbie = 'newbie',

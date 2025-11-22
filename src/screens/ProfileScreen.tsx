@@ -5,25 +5,94 @@ import { Avatar } from '../components/Avatar';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 
+import { ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { useUser } from '../hooks/useUser';
+import { useAuth } from '../hooks/useAuth';
+import { API_CONFIG } from '../config/api';
+
 interface ProfileScreenProps {
   onLogout: () => void;
 }
 
-const user = {
-  name: 'Анна Петрова',
-  email: 'anna.petrova@email.com',
-  avatar:
-    'https://images.unsplash.com/photo-1494790108755-2616c13488ac?auto=format&fit=crop&w=200&q=80',
-};
-
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
+  const { user, isLoading, uploadAvatar, deleteAvatar } = useUser();
+  const { logout } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
-  const initials = user.name
+  const handleLogout = async () => {
+    try {
+      await logout();
+      onLogout();
+    } catch {
+      Alert.alert('Ошибка', 'Не удалось выйти из системы');
+    }
+  };
+
+  const handleAvatarPress = async () => {
+    Alert.alert('Аватар', 'Выберите действие', [
+      {
+        text: 'Загрузить новый',
+        onPress: pickImage,
+      },
+      {
+        text: 'Удалить текущий',
+        onPress: handleDeleteAvatar,
+        style: 'destructive',
+      },
+      {
+        text: 'Отмена',
+        style: 'cancel',
+      },
+    ]);
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      try {
+        await uploadAvatar(result.assets[0].uri);
+      } catch {
+        Alert.alert('Ошибка', 'Не удалось загрузить аватар');
+      }
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    try {
+      await deleteAvatar();
+    } catch {
+      Alert.alert('Ошибка', 'Не удалось удалить аватар');
+    }
+  };
+
+  if (isLoading && !user) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
+    );
+  }
+
+  if (!user) return null;
+
+  const initials = (user.name || user.login || '?')
     .split(' ')
     .map((part) => part.charAt(0))
-    .join('');
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  const avatarUrl = user.avatar
+    ? (user.avatar.startsWith('http') ? user.avatar : `${API_CONFIG.BASE_URL.replace('/api/v1', '')}${user.avatar}`)
+    : undefined;
 
   return (
     <View style={styles.container}>
@@ -35,13 +104,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
       <ScrollView contentContainerStyle={styles.content}>
         <Card>
           <View style={styles.profileRow}>
-            <Avatar uri={user.avatar} initials={initials} size={72} />
+            <TouchableOpacity onPress={handleAvatarPress}>
+              <Avatar uri={avatarUrl} initials={initials} size={72} />
+            </TouchableOpacity>
             <View style={{ flex: 1 }}>
-              <Text style={styles.userName}>{user.name}</Text>
-              <Text style={styles.userEmail}>{user.email}</Text>
+              <Text style={styles.userName}>{user.name || 'Пользователь'}</Text>
+              <Text style={styles.userEmail}>{user.login}</Text>
               <View style={styles.statusRow}>
                 <View style={styles.statusDot} />
-                <Text style={styles.statusLabel}>Эко-активист</Text>
+                <Text style={styles.statusLabel}>
+                  {user.stat?.status || 'Новичок'}
+                </Text>
               </View>
             </View>
             <Feather name="settings" size={18} color="#9E9E9E" />
@@ -50,16 +123,22 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
 
         <View style={styles.statsGrid}>
           <Card style={styles.statCard}>
-            <Text style={[styles.statValue, { color: '#4CAF50' }]}>127</Text>
+            <Text style={[styles.statValue, { color: '#4CAF50' }]}>
+              {user.stat?.files_scanned || 0}
+            </Text>
             <Text style={styles.statLabel}>Анализов</Text>
           </Card>
           <Card style={styles.statCard}>
-            <Text style={[styles.statValue, { color: '#00BCD4' }]}>45.2</Text>
+            <Text style={[styles.statValue, { color: '#00BCD4' }]}>
+              {user.stat?.total_weight?.toFixed(1) || 0}
+            </Text>
             <Text style={styles.statLabel}>кг</Text>
           </Card>
           <Card style={styles.statCard}>
-            <Text style={[styles.statValue, { color: '#FF9800' }]}>15</Text>
-            <Text style={styles.statLabel}>Дней</Text>
+            <Text style={[styles.statValue, { color: '#FF9800' }]}>
+              {user.stat?.rating || 0}
+            </Text>
+            <Text style={styles.statLabel}>Рейтинг</Text>
           </Card>
         </View>
 
@@ -128,7 +207,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
 
         <Button
           label="Выйти"
-          onPress={onLogout}
+          onPress={handleLogout}
           variant="outline"
           iconName="log-out"
           style={styles.logoutButton}
@@ -143,6 +222,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',

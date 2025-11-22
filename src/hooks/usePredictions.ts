@@ -10,8 +10,8 @@ interface UsePredictionsResult {
   clearError: () => void;
 }
 
-const POLLING_INTERVAL = 2000; // 2 seconds
-const MAX_POLLING_ATTEMPTS = 60; // 2 minutes max
+const POLLING_INTERVAL = 5000; // 5 seconds
+const MAX_POLLING_ATTEMPTS = 60; // 5 minutes max
 
 export const usePredictions = (): UsePredictionsResult => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -37,30 +37,39 @@ export const usePredictions = (): UsePredictionsResult => {
           error: prediction.error,
         });
 
+        // Completed - success, return result
         if (prediction.status === PredictionStatus.Completed) {
           console.log('[Polling] ✅ Analysis completed successfully');
           return prediction;
         }
 
+        // Failed - final status, throw error and stop polling
         if (prediction.status === PredictionStatus.Failed) {
-          console.error('[Polling] ❌ Analysis failed:', prediction.error);
+          console.error('[Polling] ❌ Analysis failed (final status):', prediction.error);
           throw new Error(prediction.error || 'Анализ не удался');
         }
 
-        console.log('[Polling] ⏳ Still processing, waiting 2s...');
-      } catch (error) {
-        // If it's a network error, log but continue polling
-        console.error('[Polling] ⚠️ Error fetching prediction (attempt ' + attempts + '):', error);
+        // Processing - continue polling
+        if (prediction.status === PredictionStatus.Processing) {
+          console.log('[Polling] ⏳ Still processing, waiting 5s...');
+          await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
+          continue;
+        }
 
-        // Only throw if it's a Failed status error, not a network error
-        if (error instanceof Error && error.message.includes('Анализ не удался')) {
+        // Unknown status - log and continue
+        console.warn('[Polling] ⚠️ Unknown status:', prediction.status);
+        await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
+      } catch (error) {
+        // If it's our Failed status error, re-throw to stop polling
+        if (error instanceof Error && error.message !== 'Анализ не удался') {
+          // Network error - log and continue polling
+          console.error('[Polling] ⚠️ Network error (attempt ' + attempts + '):', error);
+          await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
+        } else {
+          // It's a Failed status error - stop polling
           throw error;
         }
-        // For network errors, we'll continue to retry
       }
-
-      // Wait before next attempt
-      await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
     }
 
     console.error('[Polling] ⏱️ Timeout: exceeded max polling attempts');

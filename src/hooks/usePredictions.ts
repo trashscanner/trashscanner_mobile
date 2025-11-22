@@ -10,8 +10,8 @@ interface UsePredictionsResult {
   clearError: () => void;
 }
 
-const POLLING_INTERVAL = 3000; // 3 seconds - safe interval
-const MAX_POLLING_ATTEMPTS = 40; // 2 minutes max
+const POLLING_INTERVAL = 500;
+const MAX_POLLING_ATTEMPTS = 20;
 
 export const usePredictions = (): UsePredictionsResult => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);

@@ -53,9 +53,12 @@ jobs:
           # Build with --wait flag and capture output
           eas build --platform android --profile production --non-interactive --wait --json > build_output.json
           
-          # Extract build ID and artifact URL from output
-          BUILD_ID=$(cat build_output.json | jq -r '.id')
-          ARTIFACT_URL=$(cat build_output.json | jq -r '.artifacts.buildUrl')
+          # Display output for debugging
+          cat build_output.json
+          
+          # Extract build ID and artifact URL from output (handling array response)
+          BUILD_ID=$(cat build_output.json | jq -r 'if type=="array" then .[0].id else .id end')
+          ARTIFACT_URL=$(cat build_output.json | jq -r 'if type=="array" then .[0].artifacts.buildUrl else .artifacts.buildUrl end')
           
           echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
           echo "artifact_url=$ARTIFACT_URL" >> $GITHUB_OUTPUT

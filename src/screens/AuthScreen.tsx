@@ -83,9 +83,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
           <View style={styles.formCard}>
             <Text style={styles.formTitle}>{isLogin ? 'Войти в аккаунт' : 'Создать аккаунт'}</Text>
 
-            {error && (
-              <Text style={styles.errorText}>{error}</Text>
-            )}
+            {error && <Text style={styles.errorText}>{error}</Text>}
 
             {!isLogin && (
               <TextInput

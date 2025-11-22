@@ -59,43 +59,56 @@ export const CameraScreen = () => {
       });
       if (!photo) return;
 
-      // Viewfinder size on screen
+      // Viewfinder configuration
       const viewfinderSize = 280;
+      const headerHeight = 100; // Approximate header height
+      const topOverlayHeight = 60; // Height of top overlay
+
+      // Viewfinder top position on screen (from top of camera view)
+      const viewfinderTopOnScreen = headerHeight + topOverlayHeight;
+      const viewfinderCenterY = viewfinderTopOnScreen + viewfinderSize / 2;
 
       // Calculate scale factor between photo and screen
-      // Photos are usually in portrait, we need to match viewfinder position
       const photoAspectRatio = photo.width / photo.height;
       const screenAspectRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
 
       let scale: number;
       if (photoAspectRatio > screenAspectRatio) {
-        // Photo is wider relative to screen
+        // Photo is wider - scale based on height
         scale = photo.height / SCREEN_HEIGHT;
       } else {
-        // Photo is taller relative to screen
+        // Photo is taller - scale based on width
         scale = photo.width / SCREEN_WIDTH;
       }
 
-      // Crop size in photo coordinates
+      // Calculate crop dimensions in photo coordinates
       const cropSizeInPhoto = viewfinderSize * scale;
 
-      // Center crop
-      const cropX = Math.max(0, (photo.width - cropSizeInPhoto) / 2);
-      const cropY = Math.max(0, (photo.height - cropSizeInPhoto) / 2);
+      // Calculate crop position to match viewfinder position on screen
+      const cropX = (photo.width - cropSizeInPhoto) / 2; // Center horizontally
+      const cropY = viewfinderCenterY * scale - cropSizeInPhoto / 2; // Match vertical position
 
-      // Crop the image
+      console.log('[CameraScreen] Crop info:', {
+        photoSize: { width: photo.width, height: photo.height },
+        scale,
+        viewfinderTopOnScreen,
+        cropSizeInPhoto,
+        cropPosition: { x: cropX, y: cropY },
+      });
+
+      // Crop the image to match viewfinder frame
       const croppedImage = await ImageManipulator.manipulateAsync(
         photo.uri,
         [
           {
             crop: {
-              originX: cropX,
-              originY: cropY,
+              originX: Math.max(0, cropX),
+              originY: Math.max(0, cropY),
               width: Math.min(cropSizeInPhoto, photo.width),
               height: Math.min(cropSizeInPhoto, photo.height),
             },
           },
-          // Resize to standard size for consistency
+          // Resize to standard size for ML model
           { resize: { width: 512, height: 512 } },
         ],
         { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
@@ -245,10 +258,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'stretch',
-    paddingTop: 100,
   },
   overlayTop: {
-    height: 100,
+    height: 60,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   viewfinderRow: {

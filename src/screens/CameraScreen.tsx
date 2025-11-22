@@ -42,8 +42,24 @@ export const CameraScreen = () => {
     if (!cameraRef.current || isAnalyzing) return;
 
     try {
-      const photo = await cameraRef.current.takePictureAsync();
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        skipProcessing: false,
+      });
       if (!photo) return;
+
+      // Calculate crop dimensions (280x280 square from center)
+      const cropSize = 280;
+      const imageWidth = photo.width;
+      const imageHeight = photo.height;
+
+      // Calculate center crop coordinates
+      const cropX = (imageWidth - cropSize) / 2;
+      const cropY = (imageHeight - cropSize) / 2;
+
+      // Use react-native-image-manipulator or similar for cropping
+      // For now, we'll send the full image but note the crop area
+      // TODO: Add image cropping library if needed
 
       setResult(null);
       const analysisResult = await analyzeImage(photo.uri);
@@ -63,14 +79,29 @@ export const CameraScreen = () => {
             <Text style={styles.subtitle}>Наведите камеру на объект</Text>
           </View>
 
-          {/* Viewfinder Frame */}
+          {/* Viewfinder Frame with Mask Overlay */}
           <View style={styles.viewfinderContainer}>
-            <View style={styles.viewfinder}>
-              <View style={[styles.corner, styles.cornerTopLeft]} />
-              <View style={[styles.corner, styles.cornerTopRight]} />
-              <View style={[styles.corner, styles.cornerBottomLeft]} />
-              <View style={[styles.corner, styles.cornerBottomRight]} />
+            {/* Top overlay */}
+            <View style={styles.overlayTop} />
+
+            <View style={styles.viewfinderRow}>
+              {/* Left overlay */}
+              <View style={styles.overlaySide} />
+
+              {/* Viewfinder frame */}
+              <View style={styles.viewfinder}>
+                <View style={[styles.corner, styles.cornerTopLeft]} />
+                <View style={[styles.corner, styles.cornerTopRight]} />
+                <View style={[styles.corner, styles.cornerBottomLeft]} />
+                <View style={[styles.corner, styles.cornerBottomRight]} />
+              </View>
+
+              {/* Right overlay */}
+              <View style={styles.overlaySide} />
             </View>
+
+            {/* Bottom overlay */}
+            <View style={styles.overlayBottom} />
           </View>
 
           {/* Result Display */}
@@ -172,12 +203,32 @@ const styles = StyleSheet.create({
   viewfinderContainer: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'stretch',
+  },
+  overlayTop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  viewfinderRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+  },
+  overlaySide: {
+    flex: 1,
+    height: 280,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  overlayBottom: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   viewfinder: {
     width: 280,
     height: 280,
     position: 'relative',
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+    borderRadius: 8,
   },
   corner: {
     position: 'absolute',
@@ -186,32 +237,32 @@ const styles = StyleSheet.create({
     borderColor: '#4CAF50',
   },
   cornerTopLeft: {
-    top: 0,
-    left: 0,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
-    borderTopLeftRadius: 8,
+    top: -2,
+    left: -2,
+    borderTopWidth: 6,
+    borderLeftWidth: 6,
+    borderTopLeftRadius: 12,
   },
   cornerTopRight: {
-    top: 0,
-    right: 0,
-    borderTopWidth: 4,
-    borderRightWidth: 4,
-    borderTopRightRadius: 8,
+    top: -2,
+    right: -2,
+    borderTopWidth: 6,
+    borderRightWidth: 6,
+    borderTopRightRadius: 12,
   },
   cornerBottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderBottomWidth: 4,
-    borderLeftWidth: 4,
-    borderBottomLeftRadius: 8,
+    bottom: -2,
+    left: -2,
+    borderBottomWidth: 6,
+    borderLeftWidth: 6,
+    borderBottomLeftRadius: 12,
   },
   cornerBottomRight: {
-    bottom: 0,
-    right: 0,
-    borderBottomWidth: 4,
-    borderRightWidth: 4,
-    borderBottomRightRadius: 8,
+    bottom: -2,
+    right: -2,
+    borderBottomWidth: 6,
+    borderRightWidth: 6,
+    borderBottomRightRadius: 12,
   },
   controls: {
     position: 'absolute',

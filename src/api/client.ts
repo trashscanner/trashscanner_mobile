@@ -1,6 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axiosRetry from 'axios-retry';
-import CookieManager from '@react-native-cookies/cookies';
+import CookieManager from '../utils/cookies';
 import { Platform } from 'react-native';
 import { API_CONFIG } from '../config/api';
 

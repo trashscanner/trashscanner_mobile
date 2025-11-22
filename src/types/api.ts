@@ -27,12 +27,12 @@ export interface UploadAvatarResponse {
 }
 
 export interface ChangePasswordRequest {
-    new_password?: string;
-    old_password?: string;
+  new_password?: string;
+  old_password?: string;
 }
 
 export interface UploadAvatarResponse {
-    avatar_url: string;
+  avatar_url: string;
 }
 
 // User Types

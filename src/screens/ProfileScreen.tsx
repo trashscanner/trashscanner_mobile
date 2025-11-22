@@ -93,7 +93,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const avatarUrl = user.avatar
     ? user.avatar.startsWith('http')
       ? user.avatar
-      : `${API_CONFIG.BASE_URL.replace('/api/v1', '')}${user.avatar}`
+      : `${API_CONFIG.STORAGE_URL}/${API_CONFIG.STORAGE_BUCKET}/${user.avatar}`
     : undefined;
 
   return (

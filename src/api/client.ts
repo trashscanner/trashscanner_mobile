@@ -34,6 +34,15 @@ client.interceptors.request.use(
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       // Ensure cookies are flushed/synced if needed
       await CookieManager.flush();
+
+      // Manually inject cookies for Expo Go compatibility
+      if (CookieManager.getCookieString) {
+        const cookieString = CookieManager.getCookieString();
+        if (cookieString) {
+          config.headers.Cookie = cookieString;
+          console.log('[API Client] Injecting cookies:', cookieString);
+        }
+      }
     }
     return config;
   },
@@ -44,7 +53,16 @@ client.interceptors.request.use(
 
 // Response interceptor
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Extract cookies from response headers for Expo Go compatibility
+    if (Platform.OS === 'ios' || Platform.OS === 'android') {
+      if (CookieManager.extractFromHeaders) {
+        CookieManager.extractFromHeaders(response.headers);
+        console.log('[API Client] Cookies extracted from response');
+      }
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 

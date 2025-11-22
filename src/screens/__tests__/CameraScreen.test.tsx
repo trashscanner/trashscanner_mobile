@@ -1,21 +1,26 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { CameraScreen } from '../CameraScreen';
 
+// Mock expo-camera
+jest.mock('expo-camera', () => ({
+  CameraView: 'CameraView',
+  useCameraPermissions: () => [{ granted: true }, jest.fn()],
+}));
+
+// Mock usePredictions hook
+jest.mock('../../hooks/usePredictions', () => ({
+  usePredictions: () => ({
+    analyzeImage: jest.fn(),
+    isAnalyzing: false,
+    error: null,
+    clearError: jest.fn(),
+  }),
+}));
+
 describe('CameraScreen', () => {
-  const mockOnCapture = jest.fn();
-
-  it('renders camera screen with title', () => {
-    const { getByText } = render(<CameraScreen onCapture={mockOnCapture} />);
-    expect(getByText('Анализатор мусора')).toBeTruthy();
-  });
-
-  it('calls onCapture when capture button is pressed', () => {
-    const { getByTestId } = render(<CameraScreen onCapture={mockOnCapture} />);
-
-    const captureButton = getByTestId('capture-button');
-    fireEvent.press(captureButton);
-
-    expect(mockOnCapture).toHaveBeenCalled();
+  it('renders camera view when permissions are granted', () => {
+    const { getByText } = render(<CameraScreen />);
+    expect(getByText('Сканирование мусора')).toBeTruthy();
   });
 });

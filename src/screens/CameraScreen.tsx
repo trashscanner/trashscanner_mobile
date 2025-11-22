@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } fr
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Feather } from '@expo/vector-icons';
 import { usePredictions } from '../hooks/usePredictions';
-import { TrashType, PredictionResponse } from '../types/api';
+import { PredictionResponse } from '../types/api';
+import { getTrashTypeInfo, getPrimaryTrashType } from '../utils/trashTypes';
 
 export const CameraScreen = () => {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -50,70 +51,6 @@ export const CameraScreen = () => {
     } catch (error) {
       Alert.alert('Ошибка', 'Не удалось проанализировать изображение');
     }
-  };
-
-  const getTrashTypeInfo = (type: string) => {
-    const typeMap: Record<
-      string,
-      { label: string; icon: string; color: string; recommendation: string }
-    > = {
-      [TrashType.Cardboard]: {
-        label: 'Картон',
-        icon: '📦',
-        color: '#8D6E63',
-        recommendation: 'Утилизируйте в контейнер для бумаги. Сложите коробки для экономии места.',
-      },
-      [TrashType.Glass]: {
-        label: 'Стекло',
-        icon: '🥤',
-        color: '#26A69A',
-        recommendation: 'Стекло можно перерабатывать бесконечно. Отнесите в контейнер для стекла.',
-      },
-      [TrashType.Metal]: {
-        label: 'Металл',
-        icon: '🔩',
-        color: '#78909C',
-        recommendation: 'Металл полностью перерабатывается. Сдайте в пункт приема металлолома.',
-      },
-      [TrashType.Paper]: {
-        label: 'Бумага',
-        icon: '📄',
-        color: '#FFA726',
-        recommendation: 'Бумагу можно переработать в новую. Используйте синий контейнер.',
-      },
-      [TrashType.Plastic]: {
-        label: 'Пластик',
-        icon: '🧴',
-        color: '#42A5F5',
-        recommendation: 'Проверьте маркировку пластика. Утилизируйте в желтый контейнер.',
-      },
-      [TrashType.Trash]: {
-        label: 'Общий мусор',
-        icon: '🗑️',
-        color: '#757575',
-        recommendation: 'Утилизируйте в контейнер для смешанных отходов.',
-      },
-      [TrashType.Undefined]: {
-        label: 'Не определено',
-        icon: '❓',
-        color: '#9E9E9E',
-        recommendation: 'Попробуйте сфотографировать объект с другого ракурса.',
-      },
-    };
-    return typeMap[type] || typeMap[TrashType.Undefined];
-  };
-
-  const getPrimaryTrashType = (
-    result: Record<string, number>
-  ): { type: string; confidence: number } => {
-    const entries = Object.entries(result);
-    if (entries.length === 0) return { type: TrashType.Undefined, confidence: 0 };
-
-    const [primaryType, confidence] = entries.reduce((max, current) =>
-      current[1] > max[1] ? current : max
-    );
-
-    return { type: primaryType, confidence };
   };
 
   return (

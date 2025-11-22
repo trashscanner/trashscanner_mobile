@@ -96,7 +96,7 @@ export const CameraScreen = () => {
         cropPosition: { x: cropX, y: cropY },
       });
 
-      // Crop the image to match viewfinder frame
+      // Crop the image to match viewfinder frame (no resize, preserve original quality)
       const croppedImage = await ImageManipulator.manipulateAsync(
         photo.uri,
         [
@@ -108,8 +108,6 @@ export const CameraScreen = () => {
               height: Math.min(cropSizeInPhoto, photo.height),
             },
           },
-          // Resize to standard size for ML model
-          { resize: { width: 512, height: 512 } },
         ],
         { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
       );

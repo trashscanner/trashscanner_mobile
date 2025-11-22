@@ -50,36 +50,31 @@ export const usePredictions = (): UsePredictionsResult => {
           return prediction;
         }
 
-        // Failed - final status, throw error and stop polling
+        // Failed - final status, immediately stop and throw error
         if (prediction.status === PredictionStatus.Failed) {
           console.error('[Polling] ❌ Analysis failed (final status):', prediction.error);
           throw new Error(prediction.error || 'Анализ не удался');
         }
 
-        // Processing - continue polling
+        // Processing - wait and continue polling
         if (prediction.status === PredictionStatus.Processing) {
           console.log('[Polling] ⏳ Still processing, waiting...');
           await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
           continue;
         }
 
-        // Unknown status - log and continue
-        console.warn('[Polling] ⚠️ Unknown status:', prediction.status);
-        await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
+        // Unknown status - treat as error and stop
+        console.error('[Polling] ⚠️ Unknown status:', prediction.status);
+        throw new Error(`Неизвестный статус: ${prediction.status}`);
       } catch (error) {
         // If polling was aborted, stop immediately
         if (abortControllerRef.current?.signal.aborted) {
           throw new Error('Polling aborted');
         }
 
-        // If it's our Failed status error, re-throw to stop polling
-        if (error instanceof Error && error.message === 'Анализ не удался') {
-          throw error;
-        }
-
-        // Network error - log and continue polling
-        console.error('[Polling] ⚠️ Network error (attempt ' + attempts + '):', error);
-        await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
+        // Any error (network or failed status) - stop polling immediately
+        console.error('[Polling] ❌ Error occurred, stopping polling:', error);
+        throw error;
       }
     }
 

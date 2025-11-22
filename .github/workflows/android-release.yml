@@ -31,22 +31,31 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🔐 Configure environment variables
+      - name: 🔐 Configure environment variables (test or prod)
+        id: set_env
         run: |
-          cat > .env << EOF
-          EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL }}
-          EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}
-          EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}
-          EOF
-          echo "Environment variables configured:"
-          cat .env
+          if [[ "${{ github.ref_name }}" == *"-test"* ]]; then
+            echo "Using TEST environment variables"
+            echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL_TEST }}" >> $GITHUB_ENV
+            echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL_TEST }}" >> $GITHUB_ENV
+            echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET_TEST }}" >> $GITHUB_ENV
+          else
+            echo "Using PRODUCTION environment variables"
+            echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL }}" >> $GITHUB_ENV
+            echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}" >> $GITHUB_ENV
+            echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}" >> $GITHUB_ENV
+          fi
+          echo "Environment variables set:"
+          echo "EXPO_PUBLIC_API_URL=$EXPO_PUBLIC_API_URL"
+          echo "EXPO_PUBLIC_STORAGE_URL=$EXPO_PUBLIC_STORAGE_URL"
+          echo "EXPO_PUBLIC_STORAGE_BUCKET=$EXPO_PUBLIC_STORAGE_BUCKET"
 
       - name: 🏗️ Build Android APK
         run: eas build --platform android --profile production --non-interactive --no-wait
         env:
-          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
-          EXPO_PUBLIC_STORAGE_URL: ${{ vars.EXPO_PUBLIC_STORAGE_URL }}
-          EXPO_PUBLIC_STORAGE_BUCKET: ${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}
+          EXPO_PUBLIC_API_URL: ${{ env.EXPO_PUBLIC_API_URL }}
+          EXPO_PUBLIC_STORAGE_URL: ${{ env.EXPO_PUBLIC_STORAGE_URL }}
+          EXPO_PUBLIC_STORAGE_BUCKET: ${{ env.EXPO_PUBLIC_STORAGE_BUCKET }}
 
       - name: ⏳ Wait for build completion
         id: wait_build

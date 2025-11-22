@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Feather } from '@expo/vector-icons';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { usePredictions } from '../hooks/usePredictions';
 import { PredictionResponse } from '../types/api';
 import { getTrashTypeInfo, getPrimaryTrashType } from '../utils/trashTypes';
@@ -54,17 +55,30 @@ export const CameraScreen = () => {
       const imageHeight = photo.height;
 
       // Calculate center crop coordinates
-      const cropX = (imageWidth - cropSize) / 2;
-      const cropY = (imageHeight - cropSize) / 2;
+      const cropX = Math.max(0, (imageWidth - cropSize) / 2);
+      const cropY = Math.max(0, (imageHeight - cropSize) / 2);
 
-      // Use react-native-image-manipulator or similar for cropping
-      // For now, we'll send the full image but note the crop area
-      // TODO: Add image cropping library if needed
+      // Crop the image to the viewfinder frame size
+      const croppedImage = await ImageManipulator.manipulateAsync(
+        photo.uri,
+        [
+          {
+            crop: {
+              originX: cropX,
+              originY: cropY,
+              width: Math.min(cropSize, imageWidth),
+              height: Math.min(cropSize, imageHeight),
+            },
+          },
+        ],
+        { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+      );
 
       setResult(null);
-      const analysisResult = await analyzeImage(photo.uri);
+      const analysisResult = await analyzeImage(croppedImage.uri);
       setResult(analysisResult);
     } catch (error) {
+      console.error('[CameraScreen] Error capturing/cropping image:', error);
       Alert.alert('Ошибка', 'Не удалось проанализировать изображение');
     }
   };

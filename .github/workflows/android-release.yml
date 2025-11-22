@@ -9,6 +9,8 @@ jobs:
   build:
     name: 🤖 Build Android APK
     runs-on: ubuntu-latest
+    environment:
+      name: test
     permissions:
       contents: write
     steps:
@@ -31,22 +33,14 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🔐 Configure environment variables (test or prod)
+      - name: 🔐 Configure environment variables (test)
         id: set_env
         run: |
-          if [[ "${{ github.ref_name }}" == *"-test"* ]]; then
-            echo "Using TEST environment variables"
-            echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL_TEST }}" >> $GITHUB_ENV
-            echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL_TEST }}" >> $GITHUB_ENV
-            echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET_TEST }}" >> $GITHUB_ENV
-            echo "NODE_ENV=test" >> $GITHUB_ENV
-          else
-            echo "Using PRODUCTION environment variables"
-            echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL }}" >> $GITHUB_ENV
-            echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}" >> $GITHUB_ENV
-            echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}" >> $GITHUB_ENV
-            echo "NODE_ENV=production" >> $GITHUB_ENV
-          fi
+          echo "Using TEST environment variables"
+          echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL_TEST }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL_TEST }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET_TEST }}" >> $GITHUB_ENV
+          echo "NODE_ENV=test" >> $GITHUB_ENV
           echo "Environment variables set:"
           echo "EXPO_PUBLIC_API_URL=$EXPO_PUBLIC_API_URL"
           echo "EXPO_PUBLIC_STORAGE_URL=$EXPO_PUBLIC_STORAGE_URL"

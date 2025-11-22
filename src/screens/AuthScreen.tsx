@@ -9,7 +9,10 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import { useAuth } from '../hooks/useAuth';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { Button } from '../components/Button';
 
@@ -26,10 +29,34 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
     password: '',
   });
 
+  const { login, register, isLoading, error } = useAuth();
+
   const toggleMode = () => setIsLogin((prev) => !prev);
 
-  const handleSubmit = () => {
-    onAuthenticated();
+  const handleSubmit = async () => {
+    if (!formData.login || !formData.password || (!isLogin && !formData.name)) {
+      Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
+      return;
+    }
+
+    try {
+      if (isLogin) {
+        await login({
+          login: formData.login,
+          password: formData.password,
+        });
+      } else {
+        await register({
+          login: formData.login,
+          name: formData.name,
+          password: formData.password,
+        });
+      }
+      onAuthenticated();
+    } catch {
+      // Error is handled by hook and set in state, but we can also show alert
+      // Alert.alert('Ошибка', error || 'Произошла ошибка');
+    }
   };
 
   return (
@@ -55,6 +82,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
 
           <View style={styles.formCard}>
             <Text style={styles.formTitle}>{isLogin ? 'Войти в аккаунт' : 'Создать аккаунт'}</Text>
+
+            {error && <Text style={styles.errorText}>{error}</Text>}
 
             {!isLogin && (
               <TextInput
@@ -96,7 +125,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
               label={isLogin ? 'Войти' : 'Зарегистрироваться'}
               onPress={handleSubmit}
               style={styles.submitButton}
+              disabled={isLoading}
             />
+            {isLoading && <ActivityIndicator style={styles.loader} color="#4CAF50" />}
 
             <TouchableOpacity onPress={toggleMode} style={styles.switchMode}>
               <Text style={styles.switchModeText}>
@@ -215,5 +246,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 12,
     color: '#90A4AE',
+  },
+  errorText: {
+    color: '#E53935',
+    textAlign: 'center',
+    marginBottom: 10,
+    fontSize: 14,
+  },
+  loader: {
+    marginTop: 10,
   },
 });

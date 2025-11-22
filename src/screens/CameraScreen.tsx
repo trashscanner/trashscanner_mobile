@@ -1,11 +1,21 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Feather } from '@expo/vector-icons';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { usePredictions } from '../hooks/usePredictions';
 import { PredictionResponse } from '../types/api';
 import { getTrashTypeInfo, getPrimaryTrashType } from '../utils/trashTypes';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export const CameraScreen = () => {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -49,16 +59,31 @@ export const CameraScreen = () => {
       });
       if (!photo) return;
 
-      // Calculate crop dimensions (280x280 square from center)
-      const cropSize = 280;
-      const imageWidth = photo.width;
-      const imageHeight = photo.height;
+      // Viewfinder size on screen
+      const viewfinderSize = 280;
 
-      // Calculate center crop coordinates
-      const cropX = Math.max(0, (imageWidth - cropSize) / 2);
-      const cropY = Math.max(0, (imageHeight - cropSize) / 2);
+      // Calculate scale factor between photo and screen
+      // Photos are usually in portrait, we need to match viewfinder position
+      const photoAspectRatio = photo.width / photo.height;
+      const screenAspectRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
 
-      // Crop the image to the viewfinder frame size
+      let scale: number;
+      if (photoAspectRatio > screenAspectRatio) {
+        // Photo is wider relative to screen
+        scale = photo.height / SCREEN_HEIGHT;
+      } else {
+        // Photo is taller relative to screen
+        scale = photo.width / SCREEN_WIDTH;
+      }
+
+      // Crop size in photo coordinates
+      const cropSizeInPhoto = viewfinderSize * scale;
+
+      // Center crop
+      const cropX = Math.max(0, (photo.width - cropSizeInPhoto) / 2);
+      const cropY = Math.max(0, (photo.height - cropSizeInPhoto) / 2);
+
+      // Crop the image
       const croppedImage = await ImageManipulator.manipulateAsync(
         photo.uri,
         [
@@ -66,10 +91,12 @@ export const CameraScreen = () => {
             crop: {
               originX: cropX,
               originY: cropY,
-              width: Math.min(cropSize, imageWidth),
-              height: Math.min(cropSize, imageHeight),
+              width: Math.min(cropSizeInPhoto, photo.width),
+              height: Math.min(cropSizeInPhoto, photo.height),
             },
           },
+          // Resize to standard size for consistency
+          { resize: { width: 512, height: 512 } },
         ],
         { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
       );
@@ -161,19 +188,19 @@ export const CameraScreen = () => {
 
           {/* Controls */}
           <View style={styles.controls}>
-            <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
-              <Feather name="rotate-cw" size={28} color="#fff" />
-            </TouchableOpacity>
-
+            <View style={{ width: 56 }} />
             <TouchableOpacity
               style={[styles.captureButton, isAnalyzing && styles.captureButtonDisabled]}
               onPress={takePicture}
               disabled={isAnalyzing}
             >
-              <View style={styles.captureButtonInner} />
+              {isAnalyzing ? (
+                <ActivityIndicator size="large" color="#fff" />
+              ) : (
+                <View style={styles.captureButtonInner} />
+              )}
             </TouchableOpacity>
-
-            <View style={styles.flipButton} />
+            <View style={{ width: 56 }} />
           </View>
         </View>
       </CameraView>
@@ -216,11 +243,12 @@ const styles = StyleSheet.create({
   },
   viewfinderContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'stretch',
+    paddingTop: 100,
   },
   overlayTop: {
-    flex: 1,
+    height: 100,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   viewfinderRow: {

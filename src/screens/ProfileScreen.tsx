@@ -91,7 +91,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     .slice(0, 2);
 
   const avatarUrl = user.avatar
-    ? (user.avatar.startsWith('http') ? user.avatar : `${API_CONFIG.BASE_URL.replace('/api/v1', '')}${user.avatar}`)
+    ? user.avatar.startsWith('http')
+      ? user.avatar
+      : `${API_CONFIG.BASE_URL.replace('/api/v1', '')}${user.avatar}`
     : undefined;
 
   return (
@@ -112,9 +114,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
               <Text style={styles.userEmail}>{user.login}</Text>
               <View style={styles.statusRow}>
                 <View style={styles.statusDot} />
-                <Text style={styles.statusLabel}>
-                  {user.stat?.status || 'Новичок'}
-                </Text>
+                <Text style={styles.statusLabel}>{user.stat?.status || 'Новичок'}</Text>
               </View>
             </View>
             <Feather name="settings" size={18} color="#9E9E9E" />
@@ -135,9 +135,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
             <Text style={styles.statLabel}>кг</Text>
           </Card>
           <Card style={styles.statCard}>
-            <Text style={[styles.statValue, { color: '#FF9800' }]}>
-              {user.stat?.rating || 0}
-            </Text>
+            <Text style={[styles.statValue, { color: '#FF9800' }]}>{user.stat?.rating || 0}</Text>
             <Text style={styles.statLabel}>Рейтинг</Text>
           </Card>
         </View>

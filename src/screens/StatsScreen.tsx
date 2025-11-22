@@ -7,23 +7,23 @@ import { ActivityIndicator } from 'react-native';
 import { useUser } from '../hooks/useUser';
 
 const TRASH_COLORS: Record<string, string> = {
-  'plastic': '#4CAF50',
-  'glass': '#00BCD4',
-  'paper': '#FF9800',
-  'metal': '#9C27B0',
-  'organic': '#795548',
-  'battery': '#F44336',
-  'other': '#9E9E9E',
+  plastic: '#4CAF50',
+  glass: '#00BCD4',
+  paper: '#FF9800',
+  metal: '#9C27B0',
+  organic: '#795548',
+  battery: '#F44336',
+  other: '#9E9E9E',
 };
 
 const TRASH_NAMES: Record<string, string> = {
-  'plastic': 'Пластик',
-  'glass': 'Стекло',
-  'paper': 'Бумага',
-  'metal': 'Металл',
-  'organic': 'Органика',
-  'battery': 'Батарейки',
-  'other': 'Другое',
+  plastic: 'Пластик',
+  glass: 'Стекло',
+  paper: 'Бумага',
+  metal: 'Металл',
+  organic: 'Органика',
+  battery: 'Батарейки',
+  other: 'Другое',
 };
 
 export const StatsScreen: React.FC = () => {
@@ -44,7 +44,10 @@ export const StatsScreen: React.FC = () => {
     trash_by_types: {},
   };
 
-  const totalItems = (Object.values(stats.trash_by_types || {}) as number[]).reduce((a, b) => a + b, 0);
+  const totalItems = (Object.values(stats.trash_by_types || {}) as number[]).reduce(
+    (a, b) => a + b,
+    0
+  );
 
   const wasteTypes = (Object.entries(stats.trash_by_types || {}) as [string, number][])
     .map(([type, count]) => ({

@@ -1,0 +1,675 @@
+basePath: /api/v1
+definitions:
+  dto.AuthRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.AuthResponse:
+    properties:
+      user:
+        properties:
+          id:
+            type: string
+          login:
+            type: string
+        type: object
+    type: object
+  dto.ChangePasswordRequest:
+    properties:
+      new_password:
+        maxLength: 64
+        minLength: 8
+        type: string
+      old_password:
+        maxLength: 64
+        minLength: 8
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  dto.LoginUserRequest:
+    properties:
+      login:
+        maxLength: 32
+        minLength: 3
+        type: string
+      name:
+        maxLength: 64
+        minLength: 3
+        type: string
+      password:
+        maxLength: 64
+        minLength: 8
+        type: string
+    required:
+    - login
+    - password
+    type: object
+  dto.PredictionResponse:
+    properties:
+      created_at:
+        type: string
+      error:
+        type: string
+      id:
+        type: string
+      result:
+        $ref: '#/definitions/models.PredictionResult'
+      scan_key:
+        type: string
+      status:
+        $ref: '#/definitions/models.PredictionStatus'
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.UploadAvatarResponse:
+    properties:
+      avatar_url:
+        example: http://localhost:9000/trashscanner-images/user-id/avatars/avatar.jpg
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      login:
+        type: string
+      name:
+        type: string
+      stat:
+        $ref: '#/definitions/models.Stat'
+      updated_at:
+        type: string
+    type: object
+  errlocal.ErrBadRequest:
+    properties:
+      details:
+        additionalProperties: {}
+        type: object
+      message:
+        type: string
+      system:
+        type: string
+    type: object
+  errlocal.ErrForbidden:
+    properties:
+      details:
+        additionalProperties: {}
+        type: object
+      message:
+        type: string
+      system:
+        type: string
+    type: object
+  errlocal.ErrInternal:
+    properties:
+      details:
+        additionalProperties: {}
+        type: object
+      message:
+        type: string
+      system:
+        type: string
+    type: object
+  errlocal.ErrNotFound:
+    properties:
+      details:
+        additionalProperties: {}
+        type: object
+      message:
+        type: string
+      system:
+        type: string
+    type: object
+  errlocal.ErrUnauthorized:
+    properties:
+      details:
+        additionalProperties: {}
+        type: object
+      message:
+        type: string
+      system:
+        type: string
+    type: object
+  models.PredictionResult:
+    additionalProperties:
+      format: float64
+      type: number
+    type: object
+  models.PredictionStatus:
+    enum:
+    - processing
+    - completed
+    - failed
+    type: string
+    x-enum-varnames:
+    - PredictionProcessingStatus
+    - PredictionCompletedStatus
+    - PredictionFailedStatus
+  models.Stat:
+    properties:
+      created_at:
+        type: string
+      files_scanned:
+        type: integer
+      id:
+        type: string
+      last_scanned_at:
+        type: string
+      rating:
+        type: integer
+      status:
+        $ref: '#/definitions/models.UserStatus'
+      total_weight:
+        type: number
+      trash_by_types:
+        additionalProperties:
+          type: integer
+        type: object
+      updated_at:
+        type: string
+    type: object
+  models.UserStatus:
+    enum:
+    - newbie
+    - eco_scout
+    - green_guard
+    - eco_warrior
+    - nature_hero
+    - earth_defender
+    - eco_champion
+    - planet_guardian
+    - eco_legend
+    type: string
+    x-enum-comments:
+      UserStatusEarthDefend: Защитник Земли 1500+
+      UserStatusEcoChampion: Эко-чемпион 3000+
+      UserStatusEcoLegend: Эко-легенда 10000+
+      UserStatusEcoScout: Эко-разведчик 100+
+      UserStatusEcoWarrior: Эко-воин 500+
+      UserStatusGreenGuard: Зеленый страж 300+
+      UserStatusNatureHero: Герой природы 1000+
+      UserStatusNewbie: Новичок 0
+      UserStatusPlanetGuard: Хранитель планеты 5000+
+    x-enum-descriptions:
+    - Новичок 0
+    - Эко-разведчик 100+
+    - Зеленый страж 300+
+    - Эко-воин 500+
+    - Герой природы 1000+
+    - Защитник Земли 1500+
+    - Эко-чемпион 3000+
+    - Хранитель планеты 5000+
+    - Эко-легенда 10000+
+    x-enum-varnames:
+    - UserStatusNewbie
+    - UserStatusEcoScout
+    - UserStatusGreenGuard
+    - UserStatusEcoWarrior
+    - UserStatusNatureHero
+    - UserStatusEarthDefend
+    - UserStatusEcoChampion
+    - UserStatusPlanetGuard
+    - UserStatusEcoLegend
+host: 0.0.0.0:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server TrashScanner API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: TrashScanner API
+  version: "1.0"
+paths:
+  /health:
+    get:
+      description: Check server health
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Is server healthy
+          schema:
+            type: boolean
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      summary: Health check
+      tags:
+      - health
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT tokens
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tokens for existing user
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/errlocal.ErrBadRequest'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      summary: User login
+      tags:
+      - auth
+  /predictions:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of predictions for a user
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Prediction result
+          schema:
+            items:
+              $ref: '#/definitions/dto.PredictionResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "403":
+          description: Forbidden - user ID mismatch
+          schema:
+            $ref: '#/definitions/errlocal.ErrForbidden'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Get a list of predictions
+      tags:
+      - predictions
+    post:
+      consumes:
+      - multipart/form-data
+      description: Start a new prediction for a user
+      parameters:
+      - description: File to upload
+        in: formData
+        name: scan
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Prediction result
+          schema:
+            $ref: '#/definitions/dto.PredictionResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "403":
+          description: Forbidden - user ID mismatch
+          schema:
+            $ref: '#/definitions/errlocal.ErrForbidden'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errlocal.ErrNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Start a new prediction
+      tags:
+      - predictions
+  /predictions/{PredictionID}:
+    get:
+      consumes:
+      - application/json
+      description: Get a prediction by ID
+      parameters:
+      - description: Prediction ID UUID format
+        in: path
+        name: PredictionID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Prediction result
+          schema:
+            $ref: '#/definitions/dto.PredictionResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "403":
+          description: Forbidden - user ID mismatch
+          schema:
+            $ref: '#/definitions/errlocal.ErrForbidden'
+        "404":
+          description: Resource not found
+          schema:
+            $ref: '#/definitions/errlocal.ErrNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Get a prediction
+      tags:
+      - predictions
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get new access token using refresh token
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: New access token set in HttpOnly cookie
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/errlocal.ErrBadRequest'
+        "401":
+          description: Invalid or expired token
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      summary: Refresh access token
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT tokens
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered and tokens returned
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/errlocal.ErrBadRequest'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      summary: User registration
+      tags:
+      - auth
+  /users/me:
+    delete:
+      consumes:
+      - application/json
+      description: Delete the authenticated user's account
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User deleted successfully
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "403":
+          description: Forbidden - user ID mismatch
+          schema:
+            $ref: '#/definitions/errlocal.ErrForbidden'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errlocal.ErrNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Delete user account
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get user details by ID (requires authentication)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User information
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "403":
+          description: Forbidden - user ID mismatch
+          schema:
+            $ref: '#/definitions/errlocal.ErrForbidden'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errlocal.ErrNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Get user information
+      tags:
+      - users
+  /users/me/avatar:
+    delete:
+      consumes:
+      - application/json
+      description: Remove the avatar of the authenticated user
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Avatar deleted successfully
+        "400":
+          description: No avatar to delete
+          schema:
+            $ref: '#/definitions/errlocal.ErrBadRequest'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "403":
+          description: Forbidden - user ID mismatch
+          schema:
+            $ref: '#/definitions/errlocal.ErrForbidden'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errlocal.ErrNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Delete user avatar
+      tags:
+      - users
+    put:
+      consumes:
+      - multipart/form-data
+      description: Upload and set a new avatar for the authenticated user
+      parameters:
+      - description: Avatar image file (JPEG or PNG, max 10MB)
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Avatar updated successfully
+          schema:
+            $ref: '#/definitions/dto.UploadAvatarResponse'
+        "400":
+          description: Invalid avatar file
+          schema:
+            $ref: '#/definitions/errlocal.ErrBadRequest'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Set user avatar
+      tags:
+      - users
+  /users/me/change-password:
+    put:
+      consumes:
+      - application/json
+      description: Change the password of the authenticated user
+      parameters:
+      - description: New password details
+        in: body
+        name: changePasswordRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Password changed successfully
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/errlocal.ErrBadRequest'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "403":
+          description: Forbidden - user ID mismatch
+          schema:
+            $ref: '#/definitions/errlocal.ErrForbidden'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errlocal.ErrNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Change user password
+      tags:
+      - users
+  /users/me/logout:
+    post:
+      consumes:
+      - application/json
+      description: Revoke all tokens for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User logged out successfully
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errlocal.ErrUnauthorized'
+        "403":
+          description: Forbidden - user ID mismatch
+          schema:
+            $ref: '#/definitions/errlocal.ErrForbidden'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errlocal.ErrNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errlocal.ErrInternal'
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

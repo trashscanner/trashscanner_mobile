@@ -22,7 +22,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    login: '',
     password: '',
   });
 
@@ -67,12 +67,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
             )}
 
             <TextInput
-              placeholder="Email"
-              value={formData.email}
-              onChangeText={(email) => setFormData((prev) => ({ ...prev, email }))}
+              placeholder="Login"
+              value={formData.login}
+              onChangeText={(login) => setFormData((prev) => ({ ...prev, login }))}
               style={styles.input}
               placeholderTextColor="#9E9E9E"
-              keyboardType="email-address"
               autoCapitalize="none"
             />
 

@@ -52,26 +52,68 @@ export const CameraScreen = () => {
     }
   };
 
-  const getTrashTypeLabel = (type: string): string => {
-    const labels: Record<string, string> = {
-      [TrashType.Cardboard]: 'Картон',
-      [TrashType.Glass]: 'Стекло',
-      [TrashType.Metal]: 'Металл',
-      [TrashType.Paper]: 'Бумага',
-      [TrashType.Plastic]: 'Пластик',
-      [TrashType.Trash]: 'Общий мусор',
-      [TrashType.Undefined]: 'Не определено',
+  const getTrashTypeInfo = (type: string) => {
+    const typeMap: Record<
+      string,
+      { label: string; icon: string; color: string; recommendation: string }
+    > = {
+      [TrashType.Cardboard]: {
+        label: 'Картон',
+        icon: '📦',
+        color: '#8D6E63',
+        recommendation: 'Утилизируйте в контейнер для бумаги. Сложите коробки для экономии места.',
+      },
+      [TrashType.Glass]: {
+        label: 'Стекло',
+        icon: '🥤',
+        color: '#26A69A',
+        recommendation: 'Стекло можно перерабатывать бесконечно. Отнесите в контейнер для стекла.',
+      },
+      [TrashType.Metal]: {
+        label: 'Металл',
+        icon: '🔩',
+        color: '#78909C',
+        recommendation: 'Металл полностью перерабатывается. Сдайте в пункт приема металлолома.',
+      },
+      [TrashType.Paper]: {
+        label: 'Бумага',
+        icon: '📄',
+        color: '#FFA726',
+        recommendation: 'Бумагу можно переработать в новую. Используйте синий контейнер.',
+      },
+      [TrashType.Plastic]: {
+        label: 'Пластик',
+        icon: '🧴',
+        color: '#42A5F5',
+        recommendation: 'Проверьте маркировку пластика. Утилизируйте в желтый контейнер.',
+      },
+      [TrashType.Trash]: {
+        label: 'Общий мусор',
+        icon: '🗑️',
+        color: '#757575',
+        recommendation: 'Утилизируйте в контейнер для смешанных отходов.',
+      },
+      [TrashType.Undefined]: {
+        label: 'Не определено',
+        icon: '❓',
+        color: '#9E9E9E',
+        recommendation: 'Попробуйте сфотографировать объект с другого ракурса.',
+      },
     };
-    return labels[type] || type;
+    return typeMap[type] || typeMap[TrashType.Undefined];
   };
 
-  const getPrimaryTrashType = (result: Record<string, number>): string => {
+  const getPrimaryTrashType = (
+    result: Record<string, number>
+  ): { type: string; confidence: number } => {
     const entries = Object.entries(result);
-    if (entries.length === 0) return TrashType.Undefined;
+    if (entries.length === 0) return { type: TrashType.Undefined, confidence: 0 };
 
-    const [primaryType] = entries.reduce((max, current) => (current[1] > max[1] ? current : max));
+    const [primaryType, confidence] = entries.reduce((max, current) =>
+      current[1] > max[1] ? current : max
+    );
 
-    return primaryType;
+    return { type: primaryType, confidence };
   };
 
   return (
@@ -84,18 +126,43 @@ export const CameraScreen = () => {
             <Text style={styles.subtitle}>Наведите камеру на объект</Text>
           </View>
 
+          {/* Viewfinder Frame */}
+          <View style={styles.viewfinderContainer}>
+            <View style={styles.viewfinder}>
+              <View style={[styles.corner, styles.cornerTopLeft]} />
+              <View style={[styles.corner, styles.cornerTopRight]} />
+              <View style={[styles.corner, styles.cornerBottomLeft]} />
+              <View style={[styles.corner, styles.cornerBottomRight]} />
+            </View>
+          </View>
+
           {/* Result Display */}
           {result && result.result && (
             <View style={styles.resultContainer}>
               <View style={styles.resultCard}>
-                <Feather name="check-circle" size={32} color="#4CAF50" />
-                <Text style={styles.resultTitle}>Анализ завершён</Text>
-                <Text style={styles.resultType}>
-                  {getTrashTypeLabel(getPrimaryTrashType(result.result))}
-                </Text>
                 <TouchableOpacity style={styles.closeButton} onPress={() => setResult(null)}>
                   <Feather name="x" size={20} color="#fff" />
                 </TouchableOpacity>
+
+                {(() => {
+                  const { type, confidence } = getPrimaryTrashType(result.result);
+                  const info = getTrashTypeInfo(type);
+                  return (
+                    <>
+                      <Text style={styles.resultIcon}>{info.icon}</Text>
+                      <Text style={styles.resultTitle}>Результат анализа</Text>
+                      <Text style={[styles.resultType, { color: info.color }]}>{info.label}</Text>
+                      <View style={styles.confidenceContainer}>
+                        <Text style={styles.confidenceLabel}>Уверенность:</Text>
+                        <Text style={styles.confidenceValue}>{(confidence * 100).toFixed(1)}%</Text>
+                      </View>
+                      <View style={styles.recommendationContainer}>
+                        <Feather name="info" size={16} color="#4CAF50" />
+                        <Text style={styles.recommendationText}>{info.recommendation}</Text>
+                      </View>
+                    </>
+                  );
+                })()}
               </View>
             </View>
           )}
@@ -165,6 +232,50 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
+  viewfinderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewfinder: {
+    width: 280,
+    height: 280,
+    position: 'relative',
+  },
+  corner: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderColor: '#4CAF50',
+  },
+  cornerTopLeft: {
+    top: 0,
+    left: 0,
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+    borderTopLeftRadius: 8,
+  },
+  cornerTopRight: {
+    top: 0,
+    right: 0,
+    borderTopWidth: 4,
+    borderRightWidth: 4,
+    borderTopRightRadius: 8,
+  },
+  cornerBottomLeft: {
+    bottom: 0,
+    left: 0,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+    borderBottomLeftRadius: 8,
+  },
+  cornerBottomRight: {
+    bottom: 0,
+    right: 0,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+    borderBottomRightRadius: 8,
+  },
   controls: {
     position: 'absolute',
     bottom: 50,
@@ -212,28 +323,67 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
   resultCard: {
     backgroundColor: '#fff',
     borderRadius: 24,
     padding: 32,
     alignItems: 'center',
-    minWidth: 280,
+    minWidth: 320,
+    maxWidth: '90%',
     position: 'relative',
   },
+  resultIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
   resultTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#263238',
-    marginTop: 16,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#546E7A',
     marginBottom: 8,
   },
   resultType: {
-    fontSize: 24,
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 16,
+  },
+  confidenceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+  },
+  confidenceLabel: {
+    fontSize: 14,
+    color: '#757575',
+    fontWeight: '500',
+  },
+  confidenceValue: {
+    fontSize: 18,
     fontWeight: '700',
     color: '#4CAF50',
-    marginTop: 8,
+  },
+  recommendationContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: '#E8F5E9',
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+  },
+  recommendationText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#1B5E20',
   },
   closeButton: {
     position: 'absolute',

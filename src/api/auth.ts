@@ -1,6 +1,6 @@
 import { client } from './client';
 import { AuthRequest, AuthResponse, LoginUserRequest } from '../types/api';
-import CookieManager from '@react-native-cookies/cookies';
+import CookieManager from '../utils/cookies';
 import { API_CONFIG } from '../config/api';
 
 export const authApi = {

@@ -1,21 +1,10 @@
 import React, { useState, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Feather } from '@expo/vector-icons';
-import * as ImageManipulator from 'expo-image-manipulator';
 import { usePredictions } from '../hooks/usePredictions';
 import { PredictionResponse } from '../types/api';
 import { getTrashTypeInfo, getPrimaryTrashType } from '../utils/trashTypes';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export const CameraScreen = () => {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -53,70 +42,14 @@ export const CameraScreen = () => {
     if (!cameraRef.current || isAnalyzing) return;
 
     try {
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.8,
-        skipProcessing: false,
-      });
+      const photo = await cameraRef.current.takePictureAsync();
       if (!photo) return;
 
-      // Viewfinder configuration
-      const viewfinderSize = 280;
-      const headerHeight = 100; // Approximate header height
-      const topOverlayHeight = 60; // Height of top overlay
-
-      // Viewfinder top position on screen (from top of camera view)
-      const viewfinderTopOnScreen = headerHeight + topOverlayHeight;
-      const viewfinderCenterY = viewfinderTopOnScreen + viewfinderSize / 2;
-
-      // Calculate scale factor between photo and screen
-      const photoAspectRatio = photo.width / photo.height;
-      const screenAspectRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
-
-      let scale: number;
-      if (photoAspectRatio > screenAspectRatio) {
-        // Photo is wider - scale based on height
-        scale = photo.height / SCREEN_HEIGHT;
-      } else {
-        // Photo is taller - scale based on width
-        scale = photo.width / SCREEN_WIDTH;
-      }
-
-      // Calculate crop dimensions in photo coordinates
-      const cropSizeInPhoto = viewfinderSize * scale;
-
-      // Calculate crop position to match viewfinder position on screen
-      const cropX = (photo.width - cropSizeInPhoto) / 2; // Center horizontally
-      const cropY = viewfinderCenterY * scale - cropSizeInPhoto / 2; // Match vertical position
-
-      console.log('[CameraScreen] Crop info:', {
-        photoSize: { width: photo.width, height: photo.height },
-        scale,
-        viewfinderTopOnScreen,
-        cropSizeInPhoto,
-        cropPosition: { x: cropX, y: cropY },
-      });
-
-      // Crop the image to match viewfinder frame (no resize, preserve original quality)
-      const croppedImage = await ImageManipulator.manipulateAsync(
-        photo.uri,
-        [
-          {
-            crop: {
-              originX: Math.max(0, cropX),
-              originY: Math.max(0, cropY),
-              width: Math.min(cropSizeInPhoto, photo.width),
-              height: Math.min(cropSizeInPhoto, photo.height),
-            },
-          },
-        ],
-        { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
-      );
-
       setResult(null);
-      const analysisResult = await analyzeImage(croppedImage.uri);
+      const analysisResult = await analyzeImage(photo.uri);
       setResult(analysisResult);
     } catch (error) {
-      console.error('[CameraScreen] Error capturing/cropping image:', error);
+      console.error('[CameraScreen] Error capturing image:', error);
       Alert.alert('Ошибка', 'Не удалось проанализировать изображение');
     }
   };

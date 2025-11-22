@@ -22,34 +22,48 @@ export const usePredictions = (): UsePredictionsResult => {
   const pollPrediction = useCallback(async (predictionId: string): Promise<PredictionResponse> => {
     let attempts = 0;
 
-    // Wait a bit before first poll to give backend time to start processing
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log('[Polling] Starting to poll prediction:', predictionId);
 
     while (attempts < MAX_POLLING_ATTEMPTS) {
+      attempts++;
+      console.log(`[Polling] Attempt ${attempts}/${MAX_POLLING_ATTEMPTS}`);
+
       try {
         const prediction = await predictionsApi.getPrediction(predictionId);
-
-        console.log(`[Polling] Attempt ${attempts + 1}: Status = ${prediction.status}`);
+        console.log('[Polling] Response:', {
+          id: prediction.id,
+          status: prediction.status,
+          hasResult: !!prediction.result,
+          error: prediction.error,
+        });
 
         if (prediction.status === PredictionStatus.Completed) {
-          console.log('[Polling] Analysis completed successfully');
+          console.log('[Polling] ✅ Analysis completed successfully');
           return prediction;
         }
 
         if (prediction.status === PredictionStatus.Failed) {
-          console.error('[Polling] Analysis failed:', prediction.error);
+          console.error('[Polling] ❌ Analysis failed:', prediction.error);
           throw new Error(prediction.error || 'Анализ не удался');
         }
 
-        // Status is still Processing, wait and retry
-        await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
-        attempts++;
+        console.log('[Polling] ⏳ Still processing, waiting 2s...');
       } catch (error) {
-        console.error('[Polling] Error fetching prediction:', error);
-        throw error;
+        // If it's a network error, log but continue polling
+        console.error('[Polling] ⚠️ Error fetching prediction (attempt ' + attempts + '):', error);
+
+        // Only throw if it's a Failed status error, not a network error
+        if (error instanceof Error && error.message.includes('Анализ не удался')) {
+          throw error;
+        }
+        // For network errors, we'll continue to retry
       }
+
+      // Wait before next attempt
+      await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
     }
 
+    console.error('[Polling] ⏱️ Timeout: exceeded max polling attempts');
     throw new Error('Превышено время ожидания анализа');
   }, []);
 

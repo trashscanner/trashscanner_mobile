@@ -3,21 +3,61 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Card } from '../components/Card';
 
-const stats = {
-  totalAnalyzed: 127,
-  totalRecycled: 45.2,
-  weeklyGrowth: 12,
-  rank: 'Эко-активист',
+import { ActivityIndicator } from 'react-native';
+import { useUser } from '../hooks/useUser';
+
+const TRASH_COLORS: Record<string, string> = {
+  plastic: '#4CAF50',
+  glass: '#00BCD4',
+  paper: '#FF9800',
+  metal: '#9C27B0',
+  organic: '#795548',
+  battery: '#F44336',
+  other: '#9E9E9E',
 };
 
-const wasteTypes = [
-  { type: 'Пластик', count: 54, percentage: 42, color: '#4CAF50' },
-  { type: 'Стекло', count: 28, percentage: 22, color: '#00BCD4' },
-  { type: 'Бумага', count: 25, percentage: 20, color: '#FF9800' },
-  { type: 'Металл', count: 20, percentage: 16, color: '#9C27B0' },
-];
+const TRASH_NAMES: Record<string, string> = {
+  plastic: 'Пластик',
+  glass: 'Стекло',
+  paper: 'Бумага',
+  metal: 'Металл',
+  organic: 'Органика',
+  battery: 'Батарейки',
+  other: 'Другое',
+};
 
 export const StatsScreen: React.FC = () => {
+  const { user, isLoading } = useUser();
+
+  if (isLoading && !user) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
+    );
+  }
+
+  const stats = user?.stat || {
+    files_scanned: 0,
+    total_weight: 0,
+    status: 'Новичок',
+    trash_by_types: {},
+  };
+
+  const totalItems = (Object.values(stats.trash_by_types || {}) as number[]).reduce(
+    (a, b) => a + b,
+    0
+  );
+
+  const wasteTypes = (Object.entries(stats.trash_by_types || {}) as [string, number][])
+    .map(([type, count]) => ({
+      type: TRASH_NAMES[type] || type,
+      count,
+      percentage: totalItems > 0 ? Math.round((count / totalItems) * 100) : 0,
+      color: TRASH_COLORS[type] || TRASH_COLORS.other,
+    }))
+    .sort((a, b) => b.count - a.count);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -33,7 +73,7 @@ export const StatsScreen: React.FC = () => {
                 <Feather name="refresh-cw" size={18} color="#4CAF50" />
               </View>
               <View>
-                <Text style={styles.summaryValue}>{stats.totalAnalyzed}</Text>
+                <Text style={styles.summaryValue}>{stats.files_scanned}</Text>
                 <Text style={styles.summaryLabel}>Проанализировано</Text>
               </View>
             </View>
@@ -45,7 +85,7 @@ export const StatsScreen: React.FC = () => {
                 <Feather name="trending-up" size={18} color="#00BCD4" />
               </View>
               <View>
-                <Text style={styles.summaryValue}>{stats.totalRecycled}</Text>
+                <Text style={styles.summaryValue}>{stats.total_weight?.toFixed(1) || 0}</Text>
                 <Text style={styles.summaryLabel}>кг переработано</Text>
               </View>
             </View>
@@ -59,11 +99,11 @@ export const StatsScreen: React.FC = () => {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.rankTitle}>Ваш статус</Text>
-              <Text style={styles.rankValue}>{stats.rank}</Text>
-              <View style={styles.rankTrend}>
+              <Text style={styles.rankValue}>{stats.status}</Text>
+              {/* <View style={styles.rankTrend}>
                 <Feather name="trending-up" size={14} color="#00BCD4" />
-                <Text style={styles.rankTrendText}>+{stats.weeklyGrowth}% за неделю</Text>
-              </View>
+                <Text style={styles.rankTrendText}>+0% за неделю</Text>
+              </View> */}
             </View>
           </View>
         </Card>
@@ -75,7 +115,7 @@ export const StatsScreen: React.FC = () => {
               <View key={item.type} style={styles.wasteItem}>
                 <View style={styles.wasteRow}>
                   <Text style={styles.wasteType}>{item.type}</Text>
-                  <Text style={styles.wasteCount}>{item.count}</Text>
+                  <Text style={styles.wasteCount}>{String(item.count)}</Text>
                 </View>
                 <View style={styles.progressBarBg}>
                   <View
@@ -112,6 +152,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -184,16 +228,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4CAF50',
     marginTop: 4,
-  },
-  rankTrend: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 6,
-  },
-  rankTrendText: {
-    fontSize: 12,
-    color: '#78909C',
   },
   sectionTitle: {
     fontSize: 16,

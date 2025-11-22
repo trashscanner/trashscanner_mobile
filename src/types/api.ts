@@ -26,13 +26,15 @@ export interface UploadAvatarResponse {
   avatar_url: string;
 }
 
-export interface ChangePasswordRequest {
-  new_password?: string;
-  old_password?: string;
-}
-
-export interface UploadAvatarResponse {
-  avatar_url: string;
+// Trash Types
+export enum TrashType {
+  Cardboard = 'cardboard',
+  Glass = 'glass',
+  Metal = 'metal',
+  Paper = 'paper',
+  Plastic = 'plastic',
+  Trash = 'trash',
+  Undefined = 'undefined',
 }
 
 // User Types

@@ -32,14 +32,7 @@ const App: React.FC = () => {
           <AuthScreen onAuthenticated={() => setCurrentScreen('camera')} />
         )}
 
-        {currentScreen === 'camera' && (
-          <CameraScreen
-            onCapture={(uri) => {
-              setCapturedImage(uri);
-              setCurrentScreen('analysis');
-            }}
-          />
-        )}
+        {currentScreen === 'camera' && <CameraScreen />}
 
         {currentScreen === 'analysis' && (
           <AnalysisScreen

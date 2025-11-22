@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Card } from '../components/Card';
+import { PieChart } from '../components/PieChart';
 import { useUser } from '../hooks/useUser';
 import { getUserStatusInfo } from '../utils/userStatus';
 import { getTrashTypeInfo, getPrimaryTrashType } from '../utils/trashTypes';
@@ -151,6 +152,11 @@ export const StatsScreen: React.FC = () => {
         {/* Trash Types Distribution */}
         <Card>
           <Text style={styles.sectionTitle}>Типы отходов</Text>
+          {wasteTypes.length > 0 && (
+            <View style={styles.pieChartContainer}>
+              <PieChart data={wasteTypes} size={200} />
+            </View>
+          )}
           <View style={styles.wasteList}>
             {wasteTypes.length > 0 ? (
               wasteTypes.map((item) => (
@@ -231,12 +237,20 @@ export const StatsScreen: React.FC = () => {
                           />
                           <Text style={styles.scanStatusText}>
                             {scan.status === PredictionStatus.Completed
-                              ? 'Готово'
+                              ? 'Успешно'
                               : scan.status === PredictionStatus.Failed
                                 ? 'Ошибка'
                                 : 'Обработка'}
                           </Text>
                         </View>
+                        <Text style={styles.scanDate}>
+                          {new Date(scan.created_at).toLocaleDateString('ru-RU', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </Text>
                         {scan.status === PredictionStatus.Completed && (
                           <View style={styles.scanTypeRow}>
                             <Text style={styles.scanTypeIcon}>{typeInfo.icon}</Text>
@@ -422,6 +436,10 @@ const styles = StyleSheet.create({
   wasteList: {
     gap: 16,
   },
+  pieChartContainer: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
   wasteItem: {
     gap: 8,
   },
@@ -491,6 +509,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#546E7A',
+  },
+  scanDate: {
+    fontSize: 11,
+    color: '#9E9E9E',
+    marginTop: 4,
   },
   scanTypeRow: {
     flexDirection: 'row',

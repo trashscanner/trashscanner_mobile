@@ -53,7 +53,16 @@ client.interceptors.request.use(
 
 // Response interceptor
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Extract cookies from response headers for Expo Go compatibility
+    if (Platform.OS === 'ios' || Platform.OS === 'android') {
+      if (CookieManager.extractFromHeaders) {
+        CookieManager.extractFromHeaders(response.headers);
+        console.log('[API Client] Cookies extracted from response');
+      }
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 

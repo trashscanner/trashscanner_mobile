@@ -34,6 +34,15 @@ client.interceptors.request.use(
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       // Ensure cookies are flushed/synced if needed
       await CookieManager.flush();
+
+      // Manually inject cookies for Expo Go compatibility
+      if (CookieManager.getCookieString) {
+        const cookieString = CookieManager.getCookieString();
+        if (cookieString) {
+          config.headers.Cookie = cookieString;
+          console.log('[API Client] Injecting cookies:', cookieString);
+        }
+      }
     }
     return config;
   },

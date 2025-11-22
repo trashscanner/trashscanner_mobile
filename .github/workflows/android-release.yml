@@ -71,11 +71,32 @@ jobs:
           EXPO_PUBLIC_STORAGE_BUCKET: ${{ env.EXPO_PUBLIC_STORAGE_BUCKET }}
 
       - name: 📥 Download APK
+        id: download
         run: |
           ARTIFACT_URL="${{ steps.build.outputs.artifact_url }}"
+          
+          if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
+            echo "❌ Error: No artifact URL found"
+            exit 1
+          fi
+          
           echo "Downloading APK from: $ARTIFACT_URL"
           curl -L -o TrashScanner-${{ github.ref_name }}.apk "$ARTIFACT_URL"
+          
+          # Verify file exists and has content
+          if [ ! -f "TrashScanner-${{ github.ref_name }}.apk" ]; then
+            echo "❌ Error: APK file not downloaded"
+            exit 1
+          fi
+          
+          FILE_SIZE=$(stat -c%s "TrashScanner-${{ github.ref_name }}.apk" 2>/dev/null || stat -f%z "TrashScanner-${{ github.ref_name }}.apk")
+          if [ "$FILE_SIZE" -lt 1000 ]; then
+            echo "❌ Error: APK file too small ($FILE_SIZE bytes)"
+            exit 1
+          fi
+          
           ls -lh TrashScanner-${{ github.ref_name }}.apk
+          echo "apk_filename=TrashScanner-${{ github.ref_name }}.apk" >> $GITHUB_OUTPUT
 
       - name: 📤 Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -85,7 +106,7 @@ jobs:
           retention-days: 30
 
       - name: 🚀 Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: TrashScanner-${{ github.ref_name }}.apk
           generate_release_notes: true
@@ -93,19 +114,29 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-') }}
           body: |
             ## 📱 TrashScanner Mobile ${{ github.ref_name }}
-
-            ### 📦 Downloads
-            - **Android APK**: Download below
-
+            
+            ### 📦 Download APK
+            
+            **[⬇️ Download TrashScanner-${{ github.ref_name }}.apk](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.ref_name }}/TrashScanner-${{ github.ref_name }}.apk)**
+            
+            Or click on the APK file in the Assets section below.
+            
             ### 🔧 Configuration
-            - API Endpoint: `${{ vars.EXPO_PUBLIC_API_URL }}`
-            - Storage: `${{ vars.EXPO_PUBLIC_STORAGE_URL }}`
-
-            ### 📝 Installation
-            1. Download the APK file
-            2. Enable "Install from Unknown Sources" on your Android device
-            3. Open and install the APK
-
+            - **Environment**: Test
+            - **API Endpoint**: `${{ vars.EXPO_PUBLIC_API_URL_TEST }}`
+            - **Storage**: `${{ vars.EXPO_PUBLIC_STORAGE_URL_TEST }}`
+            
+            ### 📝 Installation Instructions
+            1. Download the APK file using the link above
+            2. On your Android device, go to **Settings → Security**
+            3. Enable **"Install from Unknown Sources"** or **"Allow from this source"**
+            4. Open the downloaded APK file
+            5. Follow the installation prompts
+            
+            ### ℹ️ Build Info
+            - **Build ID**: `${{ steps.build.outputs.build_id }}`
+            - **Commit**: `${{ github.sha }}`
+            
             ### 🔄 What's Changed
             See release notes below.
         env:

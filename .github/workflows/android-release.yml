@@ -47,41 +47,29 @@ jobs:
           echo "EXPO_PUBLIC_STORAGE_BUCKET=$EXPO_PUBLIC_STORAGE_BUCKET"
           echo "NODE_ENV=$NODE_ENV"
 
-      - name: 🏗️ Build Android APK
-        run: eas build --platform android --profile production --non-interactive --no-wait
+      - name: 🏗️ Build Android APK and wait for completion
+        id: build
+        run: |
+          # Build with --wait flag and capture output
+          eas build --platform android --profile production --non-interactive --wait --json > build_output.json
+          
+          # Extract build ID and artifact URL from output
+          BUILD_ID=$(cat build_output.json | jq -r '.id')
+          ARTIFACT_URL=$(cat build_output.json | jq -r '.artifacts.buildUrl')
+          
+          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "artifact_url=$ARTIFACT_URL" >> $GITHUB_OUTPUT
+          
+          echo "✅ Build completed: $BUILD_ID"
+          echo "📦 Artifact URL: $ARTIFACT_URL"
         env:
           EXPO_PUBLIC_API_URL: ${{ env.EXPO_PUBLIC_API_URL }}
           EXPO_PUBLIC_STORAGE_URL: ${{ env.EXPO_PUBLIC_STORAGE_URL }}
           EXPO_PUBLIC_STORAGE_BUCKET: ${{ env.EXPO_PUBLIC_STORAGE_BUCKET }}
 
-      - name: ⏳ Wait for build completion
-        id: wait_build
-        run: |
-          echo "Waiting for EAS build to complete..."
-          # Get the latest build ID
-          BUILD_ID=$(eas build:list --platform android --limit 1 --json --non-interactive | jq -r '.[0].id')
-          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
-
-          # Poll build status
-          while true; do
-            STATUS=$(eas build:view $BUILD_ID --json --non-interactive | jq -r '.status')
-            echo "Build status: $STATUS"
-            
-            if [ "$STATUS" = "finished" ]; then
-              echo "✅ Build completed successfully"
-              break
-            elif [ "$STATUS" = "errored" ] || [ "$STATUS" = "canceled" ]; then
-              echo "❌ Build failed with status: $STATUS"
-              exit 1
-            fi
-            
-            sleep 30
-          done
-
       - name: 📥 Download APK
         run: |
-          BUILD_ID=${{ steps.wait_build.outputs.build_id }}
-          ARTIFACT_URL=$(eas build:view $BUILD_ID --json --non-interactive | jq -r '.artifacts.buildUrl')
+          ARTIFACT_URL="${{ steps.build.outputs.artifact_url }}"
           echo "Downloading APK from: $ARTIFACT_URL"
           curl -L -o TrashScanner-${{ github.ref_name }}.apk "$ARTIFACT_URL"
           ls -lh TrashScanner-${{ github.ref_name }}.apk

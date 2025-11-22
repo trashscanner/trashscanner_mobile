@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { predictionsApi } from '../api/predictions';
 import { PredictionResponse, PredictionStatus } from '../types/api';
 import { AxiosError } from 'axios';
@@ -10,12 +10,13 @@ interface UsePredictionsResult {
   clearError: () => void;
 }
 
-const POLLING_INTERVAL = 5000; // 5 seconds
-const MAX_POLLING_ATTEMPTS = 60; // 5 minutes max
+const POLLING_INTERVAL = 3000; // 3 seconds - safe interval
+const MAX_POLLING_ATTEMPTS = 40; // 2 minutes max
 
 export const usePredictions = (): UsePredictionsResult => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const clearError = useCallback(() => setError(null), []);
 
@@ -25,6 +26,12 @@ export const usePredictions = (): UsePredictionsResult => {
     console.log('[Polling] Starting to poll prediction:', predictionId);
 
     while (attempts < MAX_POLLING_ATTEMPTS) {
+      // Check if polling was aborted
+      if (abortControllerRef.current?.signal.aborted) {
+        console.log('[Polling] 🛑 Polling aborted');
+        throw new Error('Polling aborted');
+      }
+
       attempts++;
       console.log(`[Polling] Attempt ${attempts}/${MAX_POLLING_ATTEMPTS}`);
 
@@ -51,7 +58,7 @@ export const usePredictions = (): UsePredictionsResult => {
 
         // Processing - continue polling
         if (prediction.status === PredictionStatus.Processing) {
-          console.log('[Polling] ⏳ Still processing, waiting 5s...');
+          console.log('[Polling] ⏳ Still processing, waiting...');
           await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
           continue;
         }
@@ -60,15 +67,19 @@ export const usePredictions = (): UsePredictionsResult => {
         console.warn('[Polling] ⚠️ Unknown status:', prediction.status);
         await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
       } catch (error) {
+        // If polling was aborted, stop immediately
+        if (abortControllerRef.current?.signal.aborted) {
+          throw new Error('Polling aborted');
+        }
+
         // If it's our Failed status error, re-throw to stop polling
-        if (error instanceof Error && error.message !== 'Анализ не удался') {
-          // Network error - log and continue polling
-          console.error('[Polling] ⚠️ Network error (attempt ' + attempts + '):', error);
-          await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
-        } else {
-          // It's a Failed status error - stop polling
+        if (error instanceof Error && error.message === 'Анализ не удался') {
           throw error;
         }
+
+        // Network error - log and continue polling
+        console.error('[Polling] ⚠️ Network error (attempt ' + attempts + '):', error);
+        await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
       }
     }
 
@@ -78,6 +89,14 @@ export const usePredictions = (): UsePredictionsResult => {
 
   const analyzeImage = useCallback(
     async (imageUri: string): Promise<PredictionResponse> => {
+      // Abort any existing polling
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Create new abort controller for this analysis
+      abortControllerRef.current = new AbortController();
+
       setIsAnalyzing(true);
       setError(null);
 
@@ -94,6 +113,11 @@ export const usePredictions = (): UsePredictionsResult => {
 
         return result;
       } catch (err) {
+        if (err instanceof Error && err.message === 'Polling aborted') {
+          console.log('[Analysis] Analysis was aborted');
+          throw err;
+        }
+
         console.error('[Analysis] Error during analysis:', err);
         const axiosError = err as AxiosError<{ message: string }>;
         const errorMessage =
@@ -104,6 +128,7 @@ export const usePredictions = (): UsePredictionsResult => {
         throw err;
       } finally {
         setIsAnalyzing(false);
+        abortControllerRef.current = null;
       }
     },
     [pollPrediction]

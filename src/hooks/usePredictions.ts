@@ -22,20 +22,32 @@ export const usePredictions = (): UsePredictionsResult => {
   const pollPrediction = useCallback(async (predictionId: string): Promise<PredictionResponse> => {
     let attempts = 0;
 
+    // Wait a bit before first poll to give backend time to start processing
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     while (attempts < MAX_POLLING_ATTEMPTS) {
-      const prediction = await predictionsApi.getPrediction(predictionId);
+      try {
+        const prediction = await predictionsApi.getPrediction(predictionId);
 
-      if (prediction.status === PredictionStatus.Completed) {
-        return prediction;
+        console.log(`[Polling] Attempt ${attempts + 1}: Status = ${prediction.status}`);
+
+        if (prediction.status === PredictionStatus.Completed) {
+          console.log('[Polling] Analysis completed successfully');
+          return prediction;
+        }
+
+        if (prediction.status === PredictionStatus.Failed) {
+          console.error('[Polling] Analysis failed:', prediction.error);
+          throw new Error(prediction.error || 'Анализ не удался');
+        }
+
+        // Status is still Processing, wait and retry
+        await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
+        attempts++;
+      } catch (error) {
+        console.error('[Polling] Error fetching prediction:', error);
+        throw error;
       }
-
-      if (prediction.status === PredictionStatus.Failed) {
-        throw new Error(prediction.error || 'Анализ не удался');
-      }
-
-      // Status is still Processing, wait and retry
-      await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
-      attempts++;
     }
 
     throw new Error('Превышено время ожидания анализа');
@@ -47,14 +59,19 @@ export const usePredictions = (): UsePredictionsResult => {
       setError(null);
 
       try {
+        console.log('[Analysis] Starting image analysis...', imageUri);
+
         // Step 1: Upload image and create prediction
         const prediction = await predictionsApi.createPrediction(imageUri);
+        console.log('[Analysis] Prediction created with ID:', prediction.id);
 
         // Step 2: Poll for result
         const result = await pollPrediction(prediction.id);
+        console.log('[Analysis] Analysis complete:', result);
 
         return result;
       } catch (err) {
+        console.error('[Analysis] Error during analysis:', err);
         const axiosError = err as AxiosError<{ message: string }>;
         const errorMessage =
           axiosError.response?.data?.message ||

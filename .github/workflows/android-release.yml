@@ -1,0 +1,115 @@
+name: Android Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: 🤖 Build Android APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🔐 Configure environment variables
+        run: |
+          cat > .env << EOF
+          EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL }}
+          EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}
+          EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}
+          EOF
+          echo "Environment variables configured:"
+          cat .env
+
+      - name: 🏗️ Build Android APK
+        run: eas build --platform android --profile production --non-interactive --no-wait
+        env:
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
+          EXPO_PUBLIC_STORAGE_URL: ${{ vars.EXPO_PUBLIC_STORAGE_URL }}
+          EXPO_PUBLIC_STORAGE_BUCKET: ${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}
+
+      - name: ⏳ Wait for build completion
+        id: wait_build
+        run: |
+          echo "Waiting for EAS build to complete..."
+          # Get the latest build ID
+          BUILD_ID=$(eas build:list --platform android --limit 1 --json --non-interactive | jq -r '.[0].id')
+          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+
+          # Poll build status
+          while true; do
+            STATUS=$(eas build:view $BUILD_ID --json --non-interactive | jq -r '.status')
+            echo "Build status: $STATUS"
+            
+            if [ "$STATUS" = "finished" ]; then
+              echo "✅ Build completed successfully"
+              break
+            elif [ "$STATUS" = "errored" ] || [ "$STATUS" = "canceled" ]; then
+              echo "❌ Build failed with status: $STATUS"
+              exit 1
+            fi
+            
+            sleep 30
+          done
+
+      - name: 📥 Download APK
+        run: |
+          BUILD_ID=${{ steps.wait_build.outputs.build_id }}
+          ARTIFACT_URL=$(eas build:view $BUILD_ID --json --non-interactive | jq -r '.artifacts.buildUrl')
+          echo "Downloading APK from: $ARTIFACT_URL"
+          curl -L -o TrashScanner-${{ github.ref_name }}.apk "$ARTIFACT_URL"
+          ls -lh TrashScanner-${{ github.ref_name }}.apk
+
+      - name: 📤 Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: TrashScanner-${{ github.ref_name }}.apk
+          retention-days: 30
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: TrashScanner-${{ github.ref_name }}.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          body: |
+            ## 📱 TrashScanner Mobile ${{ github.ref_name }}
+
+            ### 📦 Downloads
+            - **Android APK**: Download below
+
+            ### 🔧 Configuration
+            - API Endpoint: `${{ vars.EXPO_PUBLIC_API_URL }}`
+            - Storage: `${{ vars.EXPO_PUBLIC_STORAGE_URL }}`
+
+            ### 📝 Installation
+            1. Download the APK file
+            2. Enable "Install from Unknown Sources" on your Android device
+            3. Open and install the APK
+
+            ### 🔄 What's Changed
+            See release notes below.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

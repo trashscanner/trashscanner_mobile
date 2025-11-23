@@ -27,12 +27,10 @@ export const useAuth = (): UseAuthResult => {
       return result;
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
-      const baseMessage =
+      const errorMessage =
         axiosError.response?.data?.message ||
         axiosError.message ||
         'Произошла ошибка при авторизации';
-
-      const errorMessage = `${baseMessage}\nTarget: ${API_CONFIG.BASE_URL}`;
 
       setError(errorMessage);
       throw err;

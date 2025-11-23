@@ -46,6 +46,23 @@ jobs:
           echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}"
           echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}"
           echo "NODE_ENV=test"
+          
+      - name: 📝 Update eas.json with environment variables
+        run: |
+          echo "Injecting environment variables into eas.json"
+          # Use jq to add env vars to the production profile
+          jq --arg api_url "${{ vars.EXPO_PUBLIC_API_URL }}" \
+             --arg storage_url "${{ vars.EXPO_PUBLIC_STORAGE_URL }}" \
+             --arg bucket "${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}" \
+             '.build.production.env = {
+               "EXPO_PUBLIC_API_URL": $api_url,
+               "EXPO_PUBLIC_STORAGE_URL": $storage_url,
+               "EXPO_PUBLIC_STORAGE_BUCKET": $bucket,
+               "NODE_ENV": "test"
+             }' eas.json > eas.json.tmp && mv eas.json.tmp eas.json
+          
+          echo "Updated eas.json content:"
+          cat eas.json
 
       - name: 🏗️ Build Android APK and wait for completion
         id: build

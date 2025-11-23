@@ -2,11 +2,11 @@ export const API_CONFIG = {
   BASE_URL:
     process.env.NODE_ENV === 'test'
       ? process.env.EXPO_PUBLIC_API_URL_TEST || process.env.EXPO_PUBLIC_API_URL
-      : process.env.EXPO_PUBLIC_API_URL || 'http://31.207.74.207:8080/api/v1',
+      : process.env.EXPO_PUBLIC_API_URL || 'http://185.23.35.193:8080/api/v1',
   STORAGE_URL:
     process.env.NODE_ENV === 'test'
       ? process.env.EXPO_PUBLIC_STORAGE_URL_TEST || process.env.EXPO_PUBLIC_STORAGE_URL
-      : process.env.EXPO_PUBLIC_STORAGE_URL || 'http://31.207.74.207:9000',
+      : process.env.EXPO_PUBLIC_STORAGE_URL || 'http://185.23.35.193:9000',
   STORAGE_BUCKET:
     process.env.NODE_ENV === 'test'
       ? process.env.EXPO_PUBLIC_STORAGE_BUCKET_TEST || process.env.EXPO_PUBLIC_STORAGE_BUCKET

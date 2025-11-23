@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { authApi } from '../api/auth';
 import { AuthRequest, LoginUserRequest, AuthResponse } from '../types/api';
 import { AxiosError } from 'axios';
+import { API_CONFIG } from '../config/api';
 
 interface UseAuthResult {
   login: (data: AuthRequest) => Promise<AuthResponse>;
@@ -26,10 +27,13 @@ export const useAuth = (): UseAuthResult => {
       return result;
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
-      const errorMessage =
+      const baseMessage =
         axiosError.response?.data?.message ||
         axiosError.message ||
         'Произошла ошибка при авторизации';
+
+      const errorMessage = `${baseMessage}\nTarget: ${API_CONFIG.BASE_URL}`;
+
       setError(errorMessage);
       throw err;
     } finally {

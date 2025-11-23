@@ -1,0 +1,157 @@
+name: Android Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: 🤖 Build Android APK
+    runs-on: ubuntu-latest
+    environment:
+      name: test
+    permissions:
+      contents: write
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🔐 Configure environment variables (test)
+        id: set_env
+        run: |
+          echo "Using TEST environment variables"
+          echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}" >> $GITHUB_ENV
+          echo "NODE_ENV=test" >> $GITHUB_ENV
+          echo "Environment variables set:"
+          echo "EXPO_PUBLIC_API_URL=${{ vars.EXPO_PUBLIC_API_URL }}"
+          echo "EXPO_PUBLIC_STORAGE_URL=${{ vars.EXPO_PUBLIC_STORAGE_URL }}"
+          echo "EXPO_PUBLIC_STORAGE_BUCKET=${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}"
+          echo "NODE_ENV=test"
+
+      - name: 📝 Update eas.json with environment variables
+        run: |
+          echo "Injecting environment variables into eas.json"
+          # Use jq to add env vars to the production profile
+          jq --arg api_url "${{ vars.EXPO_PUBLIC_API_URL }}" \
+             --arg storage_url "${{ vars.EXPO_PUBLIC_STORAGE_URL }}" \
+             --arg bucket "${{ vars.EXPO_PUBLIC_STORAGE_BUCKET }}" \
+             '.build.production.env = {
+               "EXPO_PUBLIC_API_URL": $api_url,
+               "EXPO_PUBLIC_STORAGE_URL": $storage_url,
+               "EXPO_PUBLIC_STORAGE_BUCKET": $bucket,
+               "NODE_ENV": "test"
+             }' eas.json > eas.json.tmp && mv eas.json.tmp eas.json
+
+      - name: 🏗️ Build Android APK and wait for completion
+        id: build
+        run: |
+          # Build with --wait flag and capture output
+          eas build --platform android --profile production --non-interactive --wait --json > build_output.json
+
+          # Display output for debugging
+          cat build_output.json
+
+          # Extract build ID and artifact URL from output (handling array response)
+          BUILD_ID=$(cat build_output.json | jq -r 'if type=="array" then .[0].id else .id end')
+          ARTIFACT_URL=$(cat build_output.json | jq -r 'if type=="array" then .[0].artifacts.buildUrl else .artifacts.buildUrl end')
+
+          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "artifact_url=$ARTIFACT_URL" >> $GITHUB_OUTPUT
+
+          echo "✅ Build completed: $BUILD_ID"
+          echo "📦 Artifact URL: $ARTIFACT_URL"
+        env:
+          EXPO_PUBLIC_API_URL: ${{ env.EXPO_PUBLIC_API_URL }}
+          EXPO_PUBLIC_STORAGE_URL: ${{ env.EXPO_PUBLIC_STORAGE_URL }}
+          EXPO_PUBLIC_STORAGE_BUCKET: ${{ env.EXPO_PUBLIC_STORAGE_BUCKET }}
+
+      - name: 📥 Download APK
+        id: download
+        run: |
+          ARTIFACT_URL="${{ steps.build.outputs.artifact_url }}"
+
+          if [ -z "$ARTIFACT_URL" ] || [ "$ARTIFACT_URL" = "null" ]; then
+            echo "❌ Error: No artifact URL found"
+            exit 1
+          fi
+
+          echo "Downloading APK from: $ARTIFACT_URL"
+          curl -L -o TrashScanner-${{ github.ref_name }}.apk "$ARTIFACT_URL"
+
+          # Verify file exists and has content
+          if [ ! -f "TrashScanner-${{ github.ref_name }}.apk" ]; then
+            echo "❌ Error: APK file not downloaded"
+            exit 1
+          fi
+
+          FILE_SIZE=$(stat -c%s "TrashScanner-${{ github.ref_name }}.apk" 2>/dev/null || stat -f%z "TrashScanner-${{ github.ref_name }}.apk")
+          if [ "$FILE_SIZE" -lt 1000 ]; then
+            echo "❌ Error: APK file too small ($FILE_SIZE bytes)"
+            exit 1
+          fi
+
+          ls -lh TrashScanner-${{ github.ref_name }}.apk
+          echo "apk_filename=TrashScanner-${{ github.ref_name }}.apk" >> $GITHUB_OUTPUT
+
+      - name: 📤 Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: TrashScanner-${{ github.ref_name }}.apk
+          retention-days: 30
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: TrashScanner-${{ github.ref_name }}.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          body: |
+            ## 📱 TrashScanner Mobile ${{ github.ref_name }}
+
+            ### 📦 Download APK
+
+            **[⬇️ Download TrashScanner-${{ github.ref_name }}.apk](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.ref_name }}/TrashScanner-${{ github.ref_name }}.apk)**
+
+            Or click on the APK file in the Assets section below.
+
+            ### 🔧 Configuration
+            - **Environment**: Test
+            - **API Endpoint**: `${{ vars.EXPO_PUBLIC_API_URL }}`
+            - **Storage**: `${{ vars.EXPO_PUBLIC_STORAGE_URL }}`
+
+            ### 📝 Installation Instructions
+            1. Download the APK file using the link above
+            2. On your Android device, go to **Settings → Security**
+            3. Enable **"Install from Unknown Sources"** or **"Allow from this source"**
+            4. Open the downloaded APK file
+            5. Follow the installation prompts
+
+            ### ℹ️ Build Info
+            - **Build ID**: `${{ steps.build.outputs.build_id }}`
+            - **Commit**: `${{ github.sha }}`
+
+            ### 🔄 What's Changed
+            See release notes below.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

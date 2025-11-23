@@ -11,6 +11,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.trashscanner.mobile",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       }
@@ -18,6 +20,23 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": ["expo-asset", "expo-font"]
+    "plugins": [
+      "expo-asset",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "24795935-3793-406a-86e8-ed1c4e6a195f"
+      }
+    },
+    "owner": "prorok210c"
   }
 }

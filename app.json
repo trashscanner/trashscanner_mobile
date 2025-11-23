@@ -17,15 +17,22 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
-      },
-      "usesCleartextTraffic": true
+      }
     },
     "web": {
       "bundler": "metro"
     },
     "plugins": [
       "expo-asset",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "extra": {
       "eas": {

@@ -1,10 +1,20 @@
 import { client } from './client';
-import { UserResponse, ChangePasswordRequest, UploadAvatarResponse } from '../types/api';
+import {
+  UserResponse,
+  ChangePasswordRequest,
+  UploadAvatarResponse,
+  UpdateUserRequest,
+} from '../types/api';
 import { Platform } from 'react-native';
 
 export const userApi = {
   getMe: async (): Promise<UserResponse> => {
     const response = await client.get<UserResponse>('/users/me');
+    return response.data;
+  },
+
+  updateUser: async (data: UpdateUserRequest): Promise<UserResponse> => {
+    const response = await client.patch<UserResponse>('/users/me', data);
     return response.data;
   },
 

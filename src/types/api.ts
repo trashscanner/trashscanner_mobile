@@ -22,6 +22,10 @@ export interface ChangePasswordRequest {
   old_password?: string;
 }
 
+export interface UpdateUserRequest {
+  name?: string;
+}
+
 export interface UploadAvatarResponse {
   avatar_url: string;
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { userApi } from '../api/user';
-import { UserResponse, ChangePasswordRequest } from '../types/api';
+import { UserResponse, ChangePasswordRequest, UpdateUserRequest } from '../types/api';
 import { AxiosError } from 'axios';
 
 interface UseUserResult {
@@ -12,6 +12,7 @@ interface UseUserResult {
   deleteAvatar: () => Promise<void>;
   changePassword: (data: ChangePasswordRequest) => Promise<void>;
   deleteAccount: () => Promise<void>;
+  updateName: (name: string) => Promise<void>;
 }
 
 export const useUser = (autoFetch = true): UseUserResult => {
@@ -73,6 +74,11 @@ export const useUser = (autoFetch = true): UseUserResult => {
 
   const deleteAccount = () => handleRequest(() => userApi.deleteAccount(), false);
 
+  const updateName = (name: string) =>
+    handleRequest(async () => {
+      await userApi.updateUser({ name });
+    });
+
   return {
     user,
     isLoading,
@@ -82,5 +88,6 @@ export const useUser = (autoFetch = true): UseUserResult => {
     deleteAvatar,
     changePassword,
     deleteAccount,
+    updateName,
   };
 };

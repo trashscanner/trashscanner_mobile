@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { Avatar } from '../components/Avatar';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
+import { ProfileEditModal } from '../components/ProfileEditModal';
 
 import { ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,10 +17,11 @@ interface ProfileScreenProps {
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
-  const { user, isLoading, uploadAvatar, deleteAvatar } = useUser();
+  const { user, isLoading, uploadAvatar, deleteAvatar, updateName } = useUser();
   const { logout } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [isEditNameModalVisible, setIsEditNameModalVisible] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -73,6 +75,16 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     }
   };
 
+  const handleNameEdit = async (newName: string) => {
+    try {
+      await updateName(newName);
+      Alert.alert('Успешно', 'Имя обновлено');
+    } catch {
+      Alert.alert('Ошибка', 'Не удалось обновить имя');
+      throw new Error('Update failed');
+    }
+  };
+
   if (isLoading && !user) {
     return (
       <View style={[styles.container, styles.center]}>
@@ -110,7 +122,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
               <Avatar uri={avatarUrl} initials={initials} size={72} />
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
-              <Text style={styles.userName}>{user.name || 'Пользователь'}</Text>
+              <View style={styles.nameRow}>
+                <Text style={styles.userName}>{user.name || 'Пользователь'}</Text>
+                <TouchableOpacity onPress={() => setIsEditNameModalVisible(true)}>
+                  <Feather name="edit-2" size={16} color="#4CAF50" />
+                </TouchableOpacity>
+              </View>
               <Text style={styles.userEmail}>{user.login}</Text>
               <View style={styles.statusRow}>
                 <View style={styles.statusDot} />
@@ -212,6 +229,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
           textStyle={{ color: '#E53935' }}
         />
       </ScrollView>
+
+      <ProfileEditModal
+        visible={isEditNameModalVisible}
+        title="Изменить имя"
+        placeholder="Введите имя"
+        initialValue={user.name || ''}
+        onSave={handleNameEdit}
+        onClose={() => setIsEditNameModalVisible(false)}
+      />
     </View>
   );
 };
@@ -258,6 +284,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#78909C',
     marginTop: 4,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   statusRow: {
     flexDirection: 'row',
